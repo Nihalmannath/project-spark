@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import { HEXES, type HexPrediction } from "../data/mockData";
 import { LABELS, type LabelKey } from "../data/labels";
@@ -6,9 +6,6 @@ import { LABELS, type LabelKey } from "../data/labels";
 mapboxgl.accessToken =
   "pk.eyJ1IjoibmloYWxtYW5uYXQiLCJhIjoiY21xaTllOGxjMDNmYTJzc2I4YmN6YjhoNyJ9.vrJ2OuIEe-7UZMcPnn36CA";
 
-// Bengaluru center
-const CENTER: [number, number] = [77.5946, 12.9716];
-// Hex size in degrees (≈ 1.4km)
 const HEX_R = 0.013;
 
 function hexPolygon(cx: number, cy: number, r: number): [number, number][] {
@@ -22,7 +19,6 @@ function hexPolygon(cx: number, cy: number, r: number): [number, number][] {
 }
 
 function colorHex(c: string) {
-  // resolve CSS-variable-style colors to literal hex (mapbox needs literals)
   const map: Record<string, string> = {
     desert: "#d59e71",
     swamp: "#3d5a80",
@@ -33,23 +29,27 @@ function colorHex(c: string) {
   return map[c] || "#888";
 }
 
-function buildFeatureCollection(
+function buildFC(
+  hexes: HexPrediction[],
+  center: [number, number],
   filter?: LabelKey | null,
   hideLowConf?: boolean,
   shift?: (h: HexPrediction) => LabelKey,
+  scale = 1,
 ) {
-  const features = HEXES
+  const r = HEX_R * scale;
+  const features = hexes
     .filter((h) => !(hideLowConf && h.confidence < 0.6))
     .map((h) => {
       const label = shift ? shift(h) : h.predicted;
-      const dx = (h.col - 7) * HEX_R * 1.732;
-      const dy = (h.row - 6) * HEX_R * 1.5;
-      const cx = CENTER[0] + dx + (h.row % 2 === 1 ? HEX_R * 0.866 : 0);
-      const cy = CENTER[1] - dy;
+      const dx = (h.col - 7) * r * 1.732;
+      const dy = (h.row - 6) * r * 1.5;
+      const cx = center[0] + dx + (h.row % 2 === 1 ? r * 0.866 : 0);
+      const cy = center[1] - dy;
       return {
         type: "Feature" as const,
-        id: parseInt(h.id.slice(1), 10),
-        geometry: { type: "Polygon" as const, coordinates: [hexPolygon(cx, cy, HEX_R)] },
+        id: parseInt(h.id.slice(1), 10) + (h.id.charCodeAt(0) * 100000),
+        geometry: { type: "Polygon" as const, coordinates: [hexPolygon(cx, cy, r)] },
         properties: {
           id: h.id,
           predicted: label,
@@ -68,19 +68,36 @@ interface Props {
   selectedId?: string | null;
   scenarioShift?: (h: HexPrediction) => LabelKey;
   onSelect: (hex: HexPrediction) => void;
+  center?: [number, number];
+  zoom?: number;
+  hexes?: HexPrediction[];
+  scale?: number;
+  caption?: string;
 }
 
-export function MapDashboard({ filterLabel, hideLowConfidence, selectedId, scenarioShift, onSelect }: Props) {
+export function MapDashboard({
+  filterLabel,
+  hideLowConfidence,
+  selectedId,
+  scenarioShift,
+  onSelect,
+  center = [77.5946, 12.9716],
+  zoom = 10.3,
+  hexes = HEXES,
+  scale = 1,
+  caption,
+}: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
+  const dataKey = useMemo(() => `${center[0]}|${hexes.length}`, [center, hexes]);
 
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
+    if (!containerRef.current) return;
     const map = new mapboxgl.Map({
       container: containerRef.current,
       style: "mapbox://styles/mapbox/light-v11",
-      center: CENTER,
-      zoom: 10.3,
+      center,
+      zoom,
       attributionControl: false,
     });
     mapRef.current = map;
@@ -88,7 +105,7 @@ export function MapDashboard({ filterLabel, hideLowConfidence, selectedId, scena
     map.addControl(new mapboxgl.AttributionControl({ compact: true }));
 
     map.on("load", () => {
-      map.addSource("hexes", { type: "geojson", data: buildFeatureCollection() });
+      map.addSource("hexes", { type: "geojson", data: buildFC(hexes, center, filterLabel, hideLowConfidence, scenarioShift, scale) });
       map.addLayer({
         id: "hex-fill",
         type: "fill",
@@ -125,28 +142,27 @@ export function MapDashboard({ filterLabel, hideLowConfidence, selectedId, scena
         const f = e.features?.[0] as { properties?: { id?: string } } | undefined;
         const id = f?.properties?.id;
         if (!id) return;
-        const hex = HEXES.find((h) => h.id === id);
+        const hex = hexes.find((h) => h.id === id);
         if (hex) onSelect(hex);
       });
       map.on("mouseenter", "hex-fill", () => { map.getCanvas().style.cursor = "pointer"; });
       map.on("mouseleave", "hex-fill", () => { map.getCanvas().style.cursor = ""; });
     });
     return () => { map.remove(); mapRef.current = null; };
-  }, [onSelect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataKey]);
 
-  // Update source on filter / hideLowConfidence changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     const apply = () => {
       const src = map.getSource("hexes") as mapboxgl.GeoJSONSource | undefined;
-      if (src) src.setData(buildFeatureCollection(filterLabel, hideLowConfidence, scenarioShift));
+      if (src) src.setData(buildFC(hexes, center, filterLabel, hideLowConfidence, scenarioShift, scale));
     };
     if (map.isStyleLoaded()) apply();
     else map.once("load", apply);
-  }, [filterLabel, hideLowConfidence, scenarioShift]);
+  }, [filterLabel, hideLowConfidence, scenarioShift, hexes, center, scale]);
 
-  // Highlight selection via feature-state
   const lastSelRef = useRef<number | null>(null);
   useEffect(() => {
     const map = mapRef.current;
@@ -156,22 +172,25 @@ export function MapDashboard({ filterLabel, hideLowConfidence, selectedId, scena
         map.setFeatureState({ source: "hexes", id: lastSelRef.current }, { selected: false });
       }
       if (selectedId) {
-        const numeric = parseInt(selectedId.slice(1), 10);
-        map.setFeatureState({ source: "hexes", id: numeric }, { selected: true });
-        lastSelRef.current = numeric;
+        const hex = hexes.find((h) => h.id === selectedId);
+        if (hex) {
+          const numeric = parseInt(hex.id.slice(1), 10) + (hex.id.charCodeAt(0) * 100000);
+          map.setFeatureState({ source: "hexes", id: numeric }, { selected: true });
+          lastSelRef.current = numeric;
+        }
       } else {
         lastSelRef.current = null;
       }
     };
     if (map.isStyleLoaded()) apply();
     else map.once("load", apply);
-  }, [selectedId]);
+  }, [selectedId, hexes]);
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-sm border border-border">
       <div ref={containerRef} className="absolute inset-0" />
       <div className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-sm bg-white/90 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-deep)] backdrop-blur">
-        Bengaluru · adaptive hex grid · {LABELS.swamp.name.split(" ")[0]} palette
+        {caption || `Bengaluru · adaptive hex grid · ${LABELS.swamp.name.split(" ")[0]} palette`}
       </div>
     </div>
   );
