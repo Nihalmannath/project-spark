@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValidationRouteImport } from './routes/validation'
+import { Route as TargetRouteImport } from './routes/target'
 import { Route as ScenarioLabRouteImport } from './routes/scenario-lab'
 import { Route as ScenarioRouteImport } from './routes/scenario'
 import { Route as RunsRouteImport } from './routes/runs'
+import { Route as RunRouteImport } from './routes/run'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as ReadinessRouteImport } from './routes/readiness'
 import { Route as MethodologyRouteImport } from './routes/methodology'
@@ -23,6 +25,7 @@ import { Route as ExportsRouteImport } from './routes/exports'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ComparisonRouteImport } from './routes/comparison'
 import { Route as CheckpointsRouteImport } from './routes/checkpoints'
+import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
@@ -31,6 +34,11 @@ import { Route as NotebooksIdRouteImport } from './routes/notebooks.$id'
 const ValidationRoute = ValidationRouteImport.update({
   id: '/validation',
   path: '/validation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TargetRoute = TargetRouteImport.update({
+  id: '/target',
+  path: '/target',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScenarioLabRoute = ScenarioLabRouteImport.update({
@@ -46,6 +54,11 @@ const ScenarioRoute = ScenarioRouteImport.update({
 const RunsRoute = RunsRouteImport.update({
   id: '/runs',
   path: '/runs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RunRoute = RunRouteImport.update({
+  id: '/run',
+  path: '/run',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultsRoute = ResultsRouteImport.update({
@@ -98,6 +111,11 @@ const CheckpointsRoute = CheckpointsRouteImport.update({
   path: '/checkpoints',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuditRoute = AuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -122,6 +140,7 @@ const NotebooksIdRoute = NotebooksIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/audit': typeof AuditRoute
   '/checkpoints': typeof CheckpointsRoute
   '/comparison': typeof ComparisonRoute
   '/dashboard': typeof DashboardRoute
@@ -132,9 +151,11 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/readiness': typeof ReadinessRoute
   '/results': typeof ResultsRoute
+  '/run': typeof RunRoute
   '/runs': typeof RunsRoute
   '/scenario': typeof ScenarioRoute
   '/scenario-lab': typeof ScenarioLabRoute
+  '/target': typeof TargetRoute
   '/validation': typeof ValidationRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks/': typeof NotebooksIndexRoute
@@ -142,6 +163,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/audit': typeof AuditRoute
   '/checkpoints': typeof CheckpointsRoute
   '/comparison': typeof ComparisonRoute
   '/dashboard': typeof DashboardRoute
@@ -152,9 +174,11 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/readiness': typeof ReadinessRoute
   '/results': typeof ResultsRoute
+  '/run': typeof RunRoute
   '/runs': typeof RunsRoute
   '/scenario': typeof ScenarioRoute
   '/scenario-lab': typeof ScenarioLabRoute
+  '/target': typeof TargetRoute
   '/validation': typeof ValidationRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks': typeof NotebooksIndexRoute
@@ -163,6 +187,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/audit': typeof AuditRoute
   '/checkpoints': typeof CheckpointsRoute
   '/comparison': typeof ComparisonRoute
   '/dashboard': typeof DashboardRoute
@@ -173,9 +198,11 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/readiness': typeof ReadinessRoute
   '/results': typeof ResultsRoute
+  '/run': typeof RunRoute
   '/runs': typeof RunsRoute
   '/scenario': typeof ScenarioRoute
   '/scenario-lab': typeof ScenarioLabRoute
+  '/target': typeof TargetRoute
   '/validation': typeof ValidationRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks/': typeof NotebooksIndexRoute
@@ -185,6 +212,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/audit'
     | '/checkpoints'
     | '/comparison'
     | '/dashboard'
@@ -195,9 +223,11 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/readiness'
     | '/results'
+    | '/run'
     | '/runs'
     | '/scenario'
     | '/scenario-lab'
+    | '/target'
     | '/validation'
     | '/notebooks/$id'
     | '/notebooks/'
@@ -205,6 +235,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/audit'
     | '/checkpoints'
     | '/comparison'
     | '/dashboard'
@@ -215,9 +246,11 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/readiness'
     | '/results'
+    | '/run'
     | '/runs'
     | '/scenario'
     | '/scenario-lab'
+    | '/target'
     | '/validation'
     | '/notebooks/$id'
     | '/notebooks'
@@ -225,6 +258,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/audit'
     | '/checkpoints'
     | '/comparison'
     | '/dashboard'
@@ -235,9 +269,11 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/readiness'
     | '/results'
+    | '/run'
     | '/runs'
     | '/scenario'
     | '/scenario-lab'
+    | '/target'
     | '/validation'
     | '/notebooks/$id'
     | '/notebooks/'
@@ -246,6 +282,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AuditRoute: typeof AuditRoute
   CheckpointsRoute: typeof CheckpointsRoute
   ComparisonRoute: typeof ComparisonRoute
   DashboardRoute: typeof DashboardRoute
@@ -256,9 +293,11 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   ReadinessRoute: typeof ReadinessRoute
   ResultsRoute: typeof ResultsRoute
+  RunRoute: typeof RunRoute
   RunsRoute: typeof RunsRoute
   ScenarioRoute: typeof ScenarioRoute
   ScenarioLabRoute: typeof ScenarioLabRoute
+  TargetRoute: typeof TargetRoute
   ValidationRoute: typeof ValidationRoute
   NotebooksIdRoute: typeof NotebooksIdRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
@@ -271,6 +310,13 @@ declare module '@tanstack/react-router' {
       path: '/validation'
       fullPath: '/validation'
       preLoaderRoute: typeof ValidationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/target': {
+      id: '/target'
+      path: '/target'
+      fullPath: '/target'
+      preLoaderRoute: typeof TargetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/scenario-lab': {
@@ -292,6 +338,13 @@ declare module '@tanstack/react-router' {
       path: '/runs'
       fullPath: '/runs'
       preLoaderRoute: typeof RunsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/run': {
+      id: '/run'
+      path: '/run'
+      fullPath: '/run'
+      preLoaderRoute: typeof RunRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/results': {
@@ -364,6 +417,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckpointsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/audit': {
+      id: '/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -398,6 +458,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AuditRoute: AuditRoute,
   CheckpointsRoute: CheckpointsRoute,
   ComparisonRoute: ComparisonRoute,
   DashboardRoute: DashboardRoute,
@@ -408,9 +469,11 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   ReadinessRoute: ReadinessRoute,
   ResultsRoute: ResultsRoute,
+  RunRoute: RunRoute,
   RunsRoute: RunsRoute,
   ScenarioRoute: ScenarioRoute,
   ScenarioLabRoute: ScenarioLabRoute,
+  TargetRoute: TargetRoute,
   ValidationRoute: ValidationRoute,
   NotebooksIdRoute: NotebooksIdRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
