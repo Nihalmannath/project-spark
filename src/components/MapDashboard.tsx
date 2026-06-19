@@ -188,7 +188,7 @@ export function MapDashboard({
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-sm border border-border">
-      <div ref={containerRef} className="absolute inset-0" />
+      <div ref={containerRef} className="h-full w-full" />
       <div className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-sm bg-white/90 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-deep)] backdrop-blur">
         {caption || `Bengaluru · adaptive hex grid · ${LABELS.swamp.name.split(" ")[0]} palette`}
       </div>
