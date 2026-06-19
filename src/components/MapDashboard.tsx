@@ -122,9 +122,9 @@ export function MapDashboard({ filterLabel, hideLowConfidence, selectedId, scena
       });
 
       map.on("click", "hex-fill", (e) => {
-        const f = e.features?.[0];
-        if (!f) return;
-        const id = f.properties?.id as string;
+        const f = e.features?.[0] as { properties?: { id?: string } } | undefined;
+        const id = f?.properties?.id;
+        if (!id) return;
         const hex = HEXES.find((h) => h.id === id);
         if (hex) onSelect(hex);
       });
@@ -140,11 +140,11 @@ export function MapDashboard({ filterLabel, hideLowConfidence, selectedId, scena
     if (!map) return;
     const apply = () => {
       const src = map.getSource("hexes") as mapboxgl.GeoJSONSource | undefined;
-      if (src) src.setData(buildFeatureCollection(filterLabel, hideLowConfidence));
+      if (src) src.setData(buildFeatureCollection(filterLabel, hideLowConfidence, scenarioShift));
     };
     if (map.isStyleLoaded()) apply();
     else map.once("load", apply);
-  }, [filterLabel, hideLowConfidence]);
+  }, [filterLabel, hideLowConfidence, scenarioShift]);
 
   // Highlight selection via feature-state
   const lastSelRef = useRef<number | null>(null);
