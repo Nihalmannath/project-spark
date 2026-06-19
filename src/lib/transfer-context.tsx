@@ -11,11 +11,11 @@ export interface TargetCity {
   center: [number, number];
   zoom: number;
   notes?: string;
-  /** "known" = wired up with data, "custom" = user-entered, no readiness yet */
+  /** "known" = verified demonstration target, "custom" = user-entered, no readiness yet */
   kind: "known" | "custom";
 }
 
-const KNOWN_TARGETS: TargetCity[] = CITIES.filter((c) => c.id !== "bengaluru").map((c: City) => ({
+const KNOWN_TARGETS: TargetCity[] = CITIES.filter((c) => c.id === "mysuru").map((c: City) => ({
   id: c.id,
   display_name: c.display_name,
   country: c.country,
@@ -47,16 +47,14 @@ export function TransferProvider({ children }: { children: ReactNode }) {
   const value = useMemo<TransferCtx>(() => {
     const targets = [...KNOWN_TARGETS, ...customTargets];
     const target = targets.find((t) => t.id === targetId) ?? null;
-    const source =
-      CHECKPOINTS_V2.find((c) => c.id === sourceId) ?? CHECKPOINTS_V2[0];
+    const source = CHECKPOINTS_V2.find((c) => c.id === sourceId) ?? CHECKPOINTS_V2[0];
     return {
       source,
       setSourceId,
       availableCheckpoints: CHECKPOINTS_V2,
       target,
       setTargetId,
-      registerCustomTarget: (t) =>
-        setCustomTargets((prev) => [...prev, { ...t, kind: "custom" }]),
+      registerCustomTarget: (t) => setCustomTargets((prev) => [...prev, { ...t, kind: "custom" }]),
       targets,
     };
   }, [sourceId, targetId, customTargets]);
@@ -73,11 +71,7 @@ export function useTransfer() {
 // ---------------------------------------------------------------------
 // Audit logic — pure function, deterministic per (source, target).
 // ---------------------------------------------------------------------
-export type AuditVerdict =
-  | "READY"
-  | "CAUTION"
-  | "INSUFFICIENT"
-  | "LOCAL_TRAINING";
+export type AuditVerdict = "READY" | "CAUTION" | "INSUFFICIENT" | "LOCAL_TRAINING";
 
 export interface AuditCheck {
   label: string;
@@ -93,10 +87,7 @@ export interface AuditReport {
   summary: string;
 }
 
-export function buildAudit(
-  source: ModelCheckpoint,
-  target: TargetCity | null,
-): AuditReport {
+export function buildAudit(source: ModelCheckpoint, target: TargetCity | null): AuditReport {
   if (!target) {
     return {
       verdict: "INSUFFICIENT",
@@ -118,8 +109,16 @@ export function buildAudit(
         { label: "Administrative boundary", status: "pass" },
         { label: "Road graph (OSM)", status: "pass", note: "8,204 edges" },
         { label: "Food POIs", status: "pass", note: "2,841 nodes" },
-        { label: "Sufficient food-POI coverage", status: "warn", note: "Lower density than source" },
-        { label: "Feature schema reproducible", status: "pass", note: source.feature_schema_version },
+        {
+          label: "Sufficient food-POI coverage",
+          status: "warn",
+          note: "Lower density than source",
+        },
+        {
+          label: "Feature schema reproducible",
+          status: "pass",
+          note: source.feature_schema_version,
+        },
         { label: "Population / demand data", status: "pass", note: "WorldPop 100m" },
         { label: "Affordability data", status: "warn", note: "Imputed from Bengaluru priors" },
         { label: "Quality / diversity data", status: "fail", note: "No Zomato menu coverage" },
@@ -137,7 +136,11 @@ export function buildAudit(
       context_compat: [
         { label: "Urban scale (Tier-2)", status: "pass", note: "Both within Karnataka" },
         { label: "Street-network morphology", status: "pass" },
-        { label: "Food-retail structure", status: "warn", note: "Fewer aggregator listings in target" },
+        {
+          label: "Food-retail structure",
+          status: "warn",
+          note: "Fewer aggregator listings in target",
+        },
         { label: "Mapping completeness", status: "warn" },
         { label: "Cultural / market differences", status: "pass" },
         { label: "Source–target geographic distance", status: "pass", note: "~150 km" },
@@ -167,9 +170,13 @@ export function buildAudit(
 
 export function verdictTone(v: AuditVerdict) {
   switch (v) {
-    case "READY": return { dot: "#7a9461", label: "Ready for transfer" };
-    case "CAUTION": return { dot: "#d59e71", label: "Transfer with caution" };
-    case "INSUFFICIENT": return { dot: "#aab3bf", label: "Insufficient data" };
-    case "LOCAL_TRAINING": return { dot: "#b85c4a", label: "Local training recommended" };
+    case "READY":
+      return { dot: "#7a9461", label: "Ready for transfer" };
+    case "CAUTION":
+      return { dot: "#d59e71", label: "Transfer with caution" };
+    case "INSUFFICIENT":
+      return { dot: "#aab3bf", label: "Insufficient data" };
+    case "LOCAL_TRAINING":
+      return { dot: "#b85c4a", label: "Local training recommended" };
   }
 }

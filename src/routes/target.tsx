@@ -21,7 +21,9 @@ function TargetPicker() {
   });
 
   const filtered = targets.filter((t) =>
-    `${t.display_name} ${t.country} ${t.osm_place_name ?? ""}`.toLowerCase().includes(query.toLowerCase()),
+    `${t.display_name} ${t.country} ${t.osm_place_name ?? ""}`
+      .toLowerCase()
+      .includes(query.toLowerCase()),
   );
 
   function addCustom() {
@@ -41,7 +43,16 @@ function TargetPicker() {
       zoom: 11,
     });
     setTargetId(id);
-    setDraft({ display_name: "", country: "", region: "", osm_place_name: "", urban_population: "", notes: "", lon: "", lat: "" });
+    setDraft({
+      display_name: "",
+      country: "",
+      region: "",
+      osm_place_name: "",
+      urban_population: "",
+      notes: "",
+      lon: "",
+      lat: "",
+    });
   }
 
   return (
@@ -52,21 +63,23 @@ function TargetPicker() {
           Where should this model be transferred?
         </h1>
         <p className="mt-2 max-w-[820px] text-sm italic text-[color:var(--color-ink-deep)]">
-          Any Tier-2 city in the world is a valid target. Mysuru is the working example.
-          Predictions only appear after the transfer audit clears data readiness.
+          Any Tier-2 city in the world is a valid target. Mysuru is the working example. Predictions
+          only appear after the transfer audit clears data readiness.
         </p>
       </header>
 
       <div className="mb-4 flex items-center gap-4 text-[11px]">
         <span className="smallcaps text-[10px] text-muted-foreground">Source model</span>
-        <span className="font-serif text-foreground">{source.training_city} · {source.id}</span>
+        <span className="font-serif text-foreground">
+          {source.training_city}, {source.training_country} · {source.id}
+        </span>
       </div>
 
-      <div className="grid grid-cols-[1.2fr_1fr] gap-6">
+      <div className="grid grid-cols-[1fr_1.2fr] gap-6">
         {/* Known + search */}
-        <section className="hairline border border-border bg-[color:var(--color-paper)] p-6">
+        <section className="order-2 hairline border border-border bg-[color:var(--color-paper)] p-6">
           <header className="mb-4 flex items-center justify-between">
-            <h2 className="font-serif text-lg text-foreground">Pre-registered targets</h2>
+            <h2 className="font-serif text-lg text-foreground">Verified demonstration target</h2>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -77,7 +90,9 @@ function TargetPicker() {
 
           <ul className="space-y-2">
             {filtered.length === 0 && (
-              <li className="text-[11px] italic text-muted-foreground">No matches. Add a custom target →</li>
+              <li className="text-[11px] italic text-muted-foreground">
+                No matches. Add a custom target →
+              </li>
             )}
             {filtered.map((t) => {
               const active = target?.id === t.id;
@@ -100,7 +115,8 @@ function TargetPicker() {
                       </span>
                     </div>
                     <p className="mt-1 font-mono text-[10px] text-muted-foreground">
-                      {t.osm_place_name ?? t.id} · {t.center[0].toFixed(3)}, {t.center[1].toFixed(3)}
+                      {t.osm_place_name ?? t.id} · {t.center[0].toFixed(3)},{" "}
+                      {t.center[1].toFixed(3)}
                     </p>
                   </button>
                 </li>
@@ -116,24 +132,57 @@ function TargetPicker() {
         </section>
 
         {/* Custom entry */}
-        <section className="hairline border border-border bg-[color:var(--color-paper)] p-6">
-          <h2 className="font-serif text-lg text-foreground">Register a new target city</h2>
+        <section className="order-1 hairline border border-border bg-[color:var(--color-paper)] p-6">
+          <h2 className="font-serif text-lg text-foreground">Enter any target city globally</h2>
           <p className="mt-1 text-[11px] italic text-muted-foreground">
-            Free entry. The custom target enters the audit at <span className="font-mono not-italic">INSUFFICIENT</span>
+            Free entry. The custom target enters the audit at{" "}
+            <span className="font-mono not-italic">INSUFFICIENT</span>
             until datasets are ingested.
           </p>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <Field label="City name *" value={draft.display_name} onChange={(v) => setDraft({ ...draft, display_name: v })} />
-            <Field label="Country *" value={draft.country} onChange={(v) => setDraft({ ...draft, country: v })} />
-            <Field label="Region / state" value={draft.region} onChange={(v) => setDraft({ ...draft, region: v })} />
-            <Field label="OSM place name" value={draft.osm_place_name} onChange={(v) => setDraft({ ...draft, osm_place_name: v })} />
-            <Field label="Urban population" value={draft.urban_population} onChange={(v) => setDraft({ ...draft, urban_population: v })} />
+            <Field
+              label="City name *"
+              value={draft.display_name}
+              onChange={(v) => setDraft({ ...draft, display_name: v })}
+            />
+            <Field
+              label="Country *"
+              value={draft.country}
+              onChange={(v) => setDraft({ ...draft, country: v })}
+            />
+            <Field
+              label="Region / state"
+              value={draft.region}
+              onChange={(v) => setDraft({ ...draft, region: v })}
+            />
+            <Field
+              label="OSM place name"
+              value={draft.osm_place_name}
+              onChange={(v) => setDraft({ ...draft, osm_place_name: v })}
+            />
+            <Field
+              label="Urban population"
+              value={draft.urban_population}
+              onChange={(v) => setDraft({ ...draft, urban_population: v })}
+            />
             <div className="grid grid-cols-2 gap-2">
-              <Field label="Lon" value={draft.lon} onChange={(v) => setDraft({ ...draft, lon: v })} />
-              <Field label="Lat" value={draft.lat} onChange={(v) => setDraft({ ...draft, lat: v })} />
+              <Field
+                label="Lon"
+                value={draft.lon}
+                onChange={(v) => setDraft({ ...draft, lon: v })}
+              />
+              <Field
+                label="Lat"
+                value={draft.lat}
+                onChange={(v) => setDraft({ ...draft, lat: v })}
+              />
             </div>
             <div className="col-span-2">
-              <Field label="Target-city notes" value={draft.notes} onChange={(v) => setDraft({ ...draft, notes: v })} />
+              <Field
+                label="Target-city notes"
+                value={draft.notes}
+                onChange={(v) => setDraft({ ...draft, notes: v })}
+              />
             </div>
             <div className="col-span-2 rounded-sm border border-dashed border-border bg-background/40 px-3 py-2.5">
               <p className="smallcaps text-[9px] text-muted-foreground">Optional boundary upload</p>
@@ -158,7 +207,9 @@ function TargetPicker() {
       </div>
 
       <div className="mt-6 flex items-center justify-end gap-3">
-        <Link to="/" className="smallcaps text-[10px] text-muted-foreground hover:text-foreground">← Back to source</Link>
+        <Link to="/" className="smallcaps text-[10px] text-muted-foreground hover:text-foreground">
+          ← Back to source
+        </Link>
         <Link
           to="/audit"
           className="smallcaps text-[10px] rounded-sm bg-foreground px-4 py-2.5 text-background hover:bg-foreground/85"
@@ -170,7 +221,15 @@ function TargetPicker() {
   );
 }
 
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function Field({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
     <label className="flex flex-col gap-1">
       <span className="smallcaps text-[9px] text-muted-foreground">{label}</span>
@@ -191,19 +250,34 @@ function WorldMapSchematic({
   activeId: string | null;
 }) {
   // Equirectangular projection within a 600x300 viewBox
-  const w = 600, h = 300;
-  const proj = (lon: number, lat: number) => [
-    ((lon + 180) / 360) * w,
-    ((90 - lat) / 180) * h,
-  ] as const;
+  const w = 600,
+    h = 300;
+  const proj = (lon: number, lat: number) =>
+    [((lon + 180) / 360) * w, ((90 - lat) / 180) * h] as const;
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 w-full border border-border bg-background">
       {/* graticule */}
       {[-120, -60, 0, 60, 120].map((lon) => (
-        <line key={`v${lon}`} x1={proj(lon, 90)[0]} y1={0} x2={proj(lon, 90)[0]} y2={h} stroke="#e3ddd1" strokeWidth="0.5" />
+        <line
+          key={`v${lon}`}
+          x1={proj(lon, 90)[0]}
+          y1={0}
+          x2={proj(lon, 90)[0]}
+          y2={h}
+          stroke="#e3ddd1"
+          strokeWidth="0.5"
+        />
       ))}
       {[-60, -30, 0, 30, 60].map((lat) => (
-        <line key={`h${lat}`} x1={0} y1={proj(0, lat)[1]} x2={w} y2={proj(0, lat)[1]} stroke="#e3ddd1" strokeWidth="0.5" />
+        <line
+          key={`h${lat}`}
+          x1={0}
+          y1={proj(0, lat)[1]}
+          x2={w}
+          y2={proj(0, lat)[1]}
+          stroke="#e3ddd1"
+          strokeWidth="0.5"
+        />
       ))}
       <rect x="0" y="0" width={w} height={h} fill="none" stroke="#cfc8b9" strokeWidth="0.5" />
       {targets.map((t) => {
@@ -211,8 +285,23 @@ function WorldMapSchematic({
         const active = t.id === activeId;
         return (
           <g key={t.id}>
-            <circle cx={x} cy={y} r={active ? 5 : 3.5} fill={active ? "#3d5a80" : "#d59e71"} stroke="#1a1a1a" strokeWidth="0.5" />
-            <text x={x + 7} y={y + 3} fontSize="8" fontFamily="Roboto Mono, monospace" fill="#465468">{t.display_name}</text>
+            <circle
+              cx={x}
+              cy={y}
+              r={active ? 5 : 3.5}
+              fill={active ? "#3d5a80" : "#d59e71"}
+              stroke="#1a1a1a"
+              strokeWidth="0.5"
+            />
+            <text
+              x={x + 7}
+              y={y + 3}
+              fontSize="8"
+              fontFamily="Roboto Mono, monospace"
+              fill="#465468"
+            >
+              {t.display_name}
+            </text>
           </g>
         );
       })}

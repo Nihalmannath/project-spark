@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useCity } from "../lib/city-context";
+import { useTransfer } from "../lib/transfer-context";
 import { MapDashboard } from "../components/MapDashboard";
 import { MYSURU_HEXES, MYSURU_HUB } from "../data/mysuru";
 import { type HexPrediction } from "../data/mockData";
@@ -30,39 +30,16 @@ const INITIAL: ScState = {
 };
 
 function ScenarioLab() {
-  const { city, setCityId } = useCity();
-
-  if (city.id !== "mysuru") {
-    return (
-      <div className="mx-auto max-w-[1400px] px-6 py-6">
-        <header className="border-b border-border pb-4">
-          <h1 className="font-serif text-2xl text-foreground">Scenario Lab</h1>
-        </header>
-        <div className="mt-6 rounded-sm border border-dashed border-border bg-background p-8 text-center">
-          <p className="smallcaps text-[10px] text-muted-foreground">Not enabled</p>
-          <p className="mt-2 max-w-xl mx-auto font-serif text-base text-foreground">
-            Scenario Lab is currently enabled only for Mysuru — the transfer projection city
-            where a frozen Bengaluru checkpoint can be perturbed and rerun.
-          </p>
-          <button
-            onClick={() => setCityId("mysuru")}
-            className="mt-4 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
-          >
-            Switch to Mysuru
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const [s, setS] = useState<ScState>(INITIAL);
+  const { target, setTargetId } = useTransfer();
 
   const shift = useMemo(() => {
     return (h: HexPrediction): LabelKey => {
       const d = Math.hypot(h.col - s.hubCol, h.row - s.hubRow);
       if (d > s.radius) return h.predicted;
       // Within radius: improve label by intensity
-      const intensity = (1 - d / (s.radius + 0.5)) * (s.addedOutlets / 6) * (s.nearestFoodShift / 0.6);
+      const intensity =
+        (1 - d / (s.radius + 0.5)) * (s.addedOutlets / 6) * (s.nearestFoodShift / 0.6);
       const order: LabelKey[] = ["desert", "swamp", "mirage", "oasis"];
       if (h.predicted === "unknown") return h.predicted;
       const idx = order.indexOf(h.predicted);
@@ -94,9 +71,33 @@ function ScenarioLab() {
     .reduce((a, b) => a + b.count, 0);
 
   const affected = useMemo(
-    () => MYSURU_HEXES.filter((h) => Math.hypot(h.col - s.hubCol, h.row - s.hubRow) <= s.radius).length,
+    () =>
+      MYSURU_HEXES.filter((h) => Math.hypot(h.col - s.hubCol, h.row - s.hubRow) <= s.radius).length,
     [s.hubCol, s.hubRow, s.radius],
   );
+
+  if (target?.id !== "mysuru") {
+    return (
+      <div className="mx-auto max-w-[1400px] px-6 py-6">
+        <header className="border-b border-border pb-4">
+          <h1 className="font-serif text-2xl text-foreground">Scenario Lab</h1>
+        </header>
+        <div className="mt-6 rounded-sm border border-dashed border-border bg-background p-8 text-center">
+          <p className="smallcaps text-[10px] text-muted-foreground">Not enabled</p>
+          <p className="mt-2 mx-auto max-w-xl font-serif text-base text-foreground">
+            Scenario tools become available after the selected target has a completed transfer run.
+            Mysuru is the verified demonstration target in this prototype.
+          </p>
+          <button
+            onClick={() => setTargetId("mysuru")}
+            className="mt-4 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
+          >
+            Load verified demo
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-[1400px] px-6 py-6">
@@ -126,7 +127,9 @@ function ScenarioLab() {
           <p className="smallcaps text-[9px] text-muted-foreground">Intervention</p>
           <select
             value={s.interventionType}
-            onChange={(e) => setS({ ...s, interventionType: e.target.value as ScState["interventionType"] })}
+            onChange={(e) =>
+              setS({ ...s, interventionType: e.target.value as ScState["interventionType"] })
+            }
             className="mt-2 w-full rounded-sm border border-border bg-background px-2 py-1.5 text-xs"
           >
             <option value="grocery_hub">Grocery hub</option>
@@ -134,12 +137,30 @@ function ScenarioLab() {
             <option value="subsidised_outlet">Subsidised outlet</option>
           </select>
 
-          <Slider label="Intervention radius (cells)" value={s.radius} min={1} max={5} step={1}
-            onChange={(v) => setS({ ...s, radius: v })} />
-          <Slider label="Added food outlets" value={s.addedOutlets} min={0} max={12} step={1}
-            onChange={(v) => setS({ ...s, addedOutlets: v })} />
-          <Slider label="Nearest-food distance reduction (km)" value={s.nearestFoodShift} min={0} max={1.5} step={0.1}
-            onChange={(v) => setS({ ...s, nearestFoodShift: v })} />
+          <Slider
+            label="Intervention radius (cells)"
+            value={s.radius}
+            min={1}
+            max={5}
+            step={1}
+            onChange={(v) => setS({ ...s, radius: v })}
+          />
+          <Slider
+            label="Added food outlets"
+            value={s.addedOutlets}
+            min={0}
+            max={12}
+            step={1}
+            onChange={(v) => setS({ ...s, addedOutlets: v })}
+          />
+          <Slider
+            label="Nearest-food distance reduction (km)"
+            value={s.nearestFoodShift}
+            min={0}
+            max={1.5}
+            step={0.1}
+            onChange={(v) => setS({ ...s, nearestFoodShift: v })}
+          />
 
           <p className="smallcaps mt-4 text-[9px] text-muted-foreground">Hub location (grid)</p>
           <div className="mt-1 grid grid-cols-2 gap-2">
@@ -161,8 +182,8 @@ function ScenarioLab() {
           <div className="h-[480px]">
             <MapDashboard
               hexes={MYSURU_HEXES}
-              center={city.center}
-              zoom={city.zoom}
+              center={target!.center}
+              zoom={target!.zoom}
               scale={0.7}
               onSelect={() => {}}
               caption="Baseline · transfer projection"
@@ -176,8 +197,8 @@ function ScenarioLab() {
           <div className="h-[480px]">
             <MapDashboard
               hexes={MYSURU_HEXES}
-              center={city.center}
-              zoom={city.zoom}
+              center={target!.center}
+              zoom={target!.zoom}
               scale={0.7}
               scenarioShift={shift}
               onSelect={() => {}}
@@ -203,7 +224,9 @@ function ScenarioLab() {
           <div className="rounded-sm border border-border bg-background p-3">
             <p className="smallcaps text-[9px] text-muted-foreground">Label transitions</p>
             {transitions.length === 0 ? (
-              <p className="mt-2 text-[11px] text-muted-foreground">No changes — adjust controls.</p>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                No changes — adjust controls.
+              </p>
             ) : (
               <ul className="mt-2 space-y-1 text-[11px]">
                 {transitions.map((t, i) => (
@@ -223,7 +246,10 @@ function ScenarioLab() {
           <div className="rounded-sm border border-border bg-background p-3 text-[11px] text-muted-foreground">
             <p className="smallcaps text-[9px]">Assumptions</p>
             <ul className="mt-1.5 space-y-1">
-              <li>— Perturbation applied to <span className="font-mono">nearest_food_km</span> and outlet counts.</li>
+              <li>
+                — Perturbation applied to <span className="font-mono">nearest_food_km</span> and
+                outlet counts.
+              </li>
               <li>— No change to road graph or population.</li>
               <li>— Confidence not recomputed; treat as comparable to baseline only.</li>
             </ul>
@@ -232,7 +258,11 @@ function ScenarioLab() {
             <p className="smallcaps text-[9px] text-muted-foreground mb-1">Legend</p>
             <div className="grid grid-cols-5 gap-1">
               {LABEL_ORDER.map((k) => (
-                <div key={k} className="rounded-sm p-1.5 text-center" style={{ background: LABELS[k].color }}>
+                <div
+                  key={k}
+                  className="rounded-sm p-1.5 text-center"
+                  style={{ background: LABELS[k].color }}
+                >
                   <span className="font-mono text-[8px] text-[#1a1a1a]">{k}</span>
                 </div>
               ))}
@@ -244,9 +274,44 @@ function ScenarioLab() {
   );
 }
 
-function Slider({ label, value, min, max, step, onChange }: {
-  label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void;
+function Slider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (v: number) => void;
 }) {
+  if (target?.id !== "mysuru") {
+    return (
+      <div className="mx-auto max-w-[1400px] px-6 py-6">
+        <header className="border-b border-border pb-4">
+          <h1 className="font-serif text-2xl text-foreground">Scenario Lab</h1>
+        </header>
+        <div className="mt-6 rounded-sm border border-dashed border-border bg-background p-8 text-center">
+          <p className="smallcaps text-[10px] text-muted-foreground">Not enabled</p>
+          <p className="mt-2 mx-auto max-w-xl font-serif text-base text-foreground">
+            Scenario tools become available after the selected target has a completed transfer run.
+            Mysuru is the verified demonstration target in this prototype.
+          </p>
+          <button
+            onClick={() => setTargetId("mysuru")}
+            className="mt-4 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
+          >
+            Load verified demo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between">
@@ -254,24 +319,86 @@ function Slider({ label, value, min, max, step, onChange }: {
         <span className="font-mono text-[11px] text-foreground">{value}</span>
       </div>
       <input
-        type="range" min={min} max={max} step={step} value={value}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
         className="mt-1 w-full accent-[#3d5a80]"
       />
     </div>
   );
 }
-function NumInput({ label, v, onChange }: { label: string; v: number; onChange: (v: number) => void }) {
+function NumInput({
+  label,
+  v,
+  onChange,
+}: {
+  label: string;
+  v: number;
+  onChange: (v: number) => void;
+}) {
+  if (target?.id !== "mysuru") {
+    return (
+      <div className="mx-auto max-w-[1400px] px-6 py-6">
+        <header className="border-b border-border pb-4">
+          <h1 className="font-serif text-2xl text-foreground">Scenario Lab</h1>
+        </header>
+        <div className="mt-6 rounded-sm border border-dashed border-border bg-background p-8 text-center">
+          <p className="smallcaps text-[10px] text-muted-foreground">Not enabled</p>
+          <p className="mt-2 mx-auto max-w-xl font-serif text-base text-foreground">
+            Scenario tools become available after the selected target has a completed transfer run.
+            Mysuru is the verified demonstration target in this prototype.
+          </p>
+          <button
+            onClick={() => setTargetId("mysuru")}
+            className="mt-4 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
+          >
+            Load verified demo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
       {label}
       <input
-        type="number" value={v} onChange={(e) => onChange(parseInt(e.target.value || "0", 10))}
+        type="number"
+        value={v}
+        onChange={(e) => onChange(parseInt(e.target.value || "0", 10))}
         className="w-full rounded-sm border border-border bg-background px-1.5 py-1 font-mono text-foreground"
       />
     </label>
   );
 }
 function Swatch({ k }: { k: LabelKey }) {
-  return <span className="inline-block size-2.5 rounded-sm" style={{ background: LABELS[k].color }} />;
+  if (target?.id !== "mysuru") {
+    return (
+      <div className="mx-auto max-w-[1400px] px-6 py-6">
+        <header className="border-b border-border pb-4">
+          <h1 className="font-serif text-2xl text-foreground">Scenario Lab</h1>
+        </header>
+        <div className="mt-6 rounded-sm border border-dashed border-border bg-background p-8 text-center">
+          <p className="smallcaps text-[10px] text-muted-foreground">Not enabled</p>
+          <p className="mt-2 mx-auto max-w-xl font-serif text-base text-foreground">
+            Scenario tools become available after the selected target has a completed transfer run.
+            Mysuru is the verified demonstration target in this prototype.
+          </p>
+          <button
+            onClick={() => setTargetId("mysuru")}
+            className="mt-4 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
+          >
+            Load verified demo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <span className="inline-block size-2.5 rounded-sm" style={{ background: LABELS[k].color }} />
+  );
 }

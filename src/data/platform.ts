@@ -30,8 +30,7 @@ export const CITIES: City[] = [
     region: "Karnataka",
     evidence_state: "AVAILABLE",
     data_readiness: 1.0,
-    caveat:
-      "Labels are proxy labels derived from adaptive catchments — not survey ground truth.",
+    caveat: "Labels are proxy labels derived from adaptive catchments — not survey ground truth.",
     last_updated: "2026-05-12",
     center: [77.5946, 12.9716],
     zoom: 10.3,
@@ -131,7 +130,15 @@ const v = (
   observation_date: string,
   row_count?: number,
   notes?: string,
-): DatasetRecord => ({ city_id, type, source, observation_date, row_count, status: "verified", notes });
+): DatasetRecord => ({
+  city_id,
+  type,
+  source,
+  observation_date,
+  row_count,
+  status: "verified",
+  notes,
+});
 
 const p = (
   city_id: string,
@@ -142,7 +149,11 @@ const p = (
 ): DatasetRecord => ({ city_id, type, source, observation_date, status: "partial", notes });
 
 const m = (city_id: string, type: DatasetKey): DatasetRecord => ({
-  city_id, type, source: "—", observation_date: "—", status: "missing",
+  city_id,
+  type,
+  source: "—",
+  observation_date: "—",
+  status: "missing",
 });
 
 export const DATASETS: DatasetRecord[] = [
@@ -159,15 +170,27 @@ export const DATASETS: DatasetRecord[] = [
   v("bengaluru", "vulnerability", "Composite SDI", "2024"),
   v("bengaluru", "access_grid", "2SFCA 800m / 1500m", "2025-10"),
   v("bengaluru", "adaptive_hex", "Notebook 08 catchments", "2025-11", 877),
-  v("bengaluru", "local_labels", "Adaptive catchment proxy labels", "2025-11", 877, "Proxy, not survey"),
+  v(
+    "bengaluru",
+    "local_labels",
+    "Adaptive catchment proxy labels",
+    "2025-11",
+    877,
+    "Proxy, not survey",
+  ),
 
   // Mysuru — partial, scenario-grade
   v("mysuru", "boundary", "MCC ward GeoJSON", "2023-09", 65),
   v("mysuru", "roads", "OSM (osmnx)", "2025-08", 8204),
   v("mysuru", "food_pois", "OSM", "2025-09", 2841),
   v("mysuru", "groceries", "OSM groceries", "2025-09", 612),
-  p("mysuru", "restaurants", "OSM only — no Zomato crawl", "2025-09",
-    "Affordability/quality fields imputed from Bengaluru priors"),
+  p(
+    "mysuru",
+    "restaurants",
+    "OSM only — no Zomato crawl",
+    "2025-09",
+    "Affordability/quality fields imputed from Bengaluru priors",
+  ),
   p("mysuru", "prices", "Imputed (Bengaluru priors)", "—"),
   p("mysuru", "ratings", "Imputed", "—"),
   m("mysuru", "menu_diversity"),
@@ -214,6 +237,10 @@ export const DATASETS: DatasetRecord[] = [
 export interface ModelCheckpoint {
   id: string;
   training_city: string;
+  training_country: string;
+  training_region: string;
+  urban_context_tags: string[];
+  checkpoint_status: "AVAILABLE" | "TRAINING" | "ARCHIVED";
   model_type: string;
   feature_schema_version: string;
   scaler: string;
@@ -228,6 +255,10 @@ export const CHECKPOINTS_V2: ModelCheckpoint[] = [
   {
     id: "ckpt_blr_03c",
     training_city: "Bengaluru",
+    training_country: "India",
+    training_region: "South Asia",
+    urban_context_tags: ["large metro", "South Asian", "mixed road hierarchy"],
+    checkpoint_status: "AVAILABLE",
     model_type: "GraphSAGE (weighted edges)",
     feature_schema_version: "v3c (36 features, no leakage)",
     scaler: "StandardScaler v3c",
@@ -241,6 +272,10 @@ export const CHECKPOINTS_V2: ModelCheckpoint[] = [
   {
     id: "ckpt_blr_08",
     training_city: "Bengaluru",
+    training_country: "India",
+    training_region: "South Asia",
+    urban_context_tags: ["large metro", "South Asian", "mixed road hierarchy"],
+    checkpoint_status: "AVAILABLE",
     model_type: "GraphSAGE + GBM ensemble",
     feature_schema_version: "v8 (48 features, leakage-excluded)",
     scaler: "StandardScaler v8",
@@ -326,15 +361,14 @@ export const RUNS: ModelRun[] = [
 export const api = {
   listCities: () => CITIES,
   getCity: (id: string) => CITIES.find((c) => c.id === id),
-  getReadiness: (cityId: string) =>
-    DATASETS.filter((d) => d.city_id === cityId),
-  listRuns: (cityId?: string) =>
-    cityId ? RUNS.filter((r) => r.city_id === cityId) : RUNS,
+  getReadiness: (cityId: string) => DATASETS.filter((d) => d.city_id === cityId),
+  listRuns: (cityId?: string) => (cityId ? RUNS.filter((r) => r.city_id === cityId) : RUNS),
   getRun: (id: string) => RUNS.find((r) => r.id === id),
   getCheckpoint: (id: string) => CHECKPOINTS_V2.find((c) => c.id === id),
   latestRun: (cityId: string) =>
-    RUNS.filter((r) => r.city_id === cityId)
-      .sort((a, b) => (b.completed_at || "").localeCompare(a.completed_at || ""))[0],
+    RUNS.filter((r) => r.city_id === cityId).sort((a, b) =>
+      (b.completed_at || "").localeCompare(a.completed_at || ""),
+    )[0],
 };
 
 export function evidenceTone(state: EvidenceState) {

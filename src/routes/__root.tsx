@@ -80,24 +80,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GraphSAGE Food Desert Identification — Bengaluru" },
+      { title: "Cross-City Food Environment Transfer" },
       {
         name: "description",
         content:
-          "An MSc thesis dashboard presenting GraphSAGE models for identifying food deserts, oases, mirages, and swamps across Bengaluru's 31,645 road intersections.",
+          "A research workspace for auditing and transferring trained urban food-environment models between cities.",
       },
-      { property: "og:title", content: "GraphSAGE Food Desert Identification — Bengaluru" },
+      { property: "og:title", content: "Cross-City Food Environment Transfer" },
       {
         property: "og:description",
         content:
-          "Notebook-by-notebook thesis results: from OSM baseline (macro-F1 0.292) to adaptive hex targets (accuracy 0.939).",
+          "Select a trained source-city checkpoint, audit a target city, and produce an uncertainty-aware cross-city projection.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-    ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
