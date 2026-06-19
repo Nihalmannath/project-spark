@@ -10,10 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValidationRouteImport } from './routes/validation'
+import { Route as ScenarioLabRouteImport } from './routes/scenario-lab'
 import { Route as ScenarioRouteImport } from './routes/scenario'
+import { Route as RunsRouteImport } from './routes/runs'
+import { Route as ResultsRouteImport } from './routes/results'
+import { Route as ReadinessRouteImport } from './routes/readiness'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as LocationsRouteImport } from './routes/locations'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as ExportsRouteImport } from './routes/exports'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ComparisonRouteImport } from './routes/comparison'
 import { Route as CheckpointsRouteImport } from './routes/checkpoints'
@@ -27,9 +33,29 @@ const ValidationRoute = ValidationRouteImport.update({
   path: '/validation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ScenarioLabRoute = ScenarioLabRouteImport.update({
+  id: '/scenario-lab',
+  path: '/scenario-lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScenarioRoute = ScenarioRouteImport.update({
   id: '/scenario',
   path: '/scenario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RunsRoute = RunsRouteImport.update({
+  id: '/runs',
+  path: '/runs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultsRoute = ResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadinessRoute = ReadinessRouteImport.update({
+  id: '/readiness',
+  path: '/readiness',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodologyRoute = MethodologyRouteImport.update({
@@ -42,9 +68,19 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LocationsRoute = LocationsRouteImport.update({
+  id: '/locations',
+  path: '/locations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeaturesRoute = FeaturesRouteImport.update({
   id: '/features',
   path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExportsRoute = ExportsRouteImport.update({
+  id: '/exports',
+  path: '/exports',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -89,10 +125,16 @@ export interface FileRoutesByFullPath {
   '/checkpoints': typeof CheckpointsRoute
   '/comparison': typeof ComparisonRoute
   '/dashboard': typeof DashboardRoute
+  '/exports': typeof ExportsRoute
   '/features': typeof FeaturesRoute
+  '/locations': typeof LocationsRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
+  '/readiness': typeof ReadinessRoute
+  '/results': typeof ResultsRoute
+  '/runs': typeof RunsRoute
   '/scenario': typeof ScenarioRoute
+  '/scenario-lab': typeof ScenarioLabRoute
   '/validation': typeof ValidationRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks/': typeof NotebooksIndexRoute
@@ -103,10 +145,16 @@ export interface FileRoutesByTo {
   '/checkpoints': typeof CheckpointsRoute
   '/comparison': typeof ComparisonRoute
   '/dashboard': typeof DashboardRoute
+  '/exports': typeof ExportsRoute
   '/features': typeof FeaturesRoute
+  '/locations': typeof LocationsRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
+  '/readiness': typeof ReadinessRoute
+  '/results': typeof ResultsRoute
+  '/runs': typeof RunsRoute
   '/scenario': typeof ScenarioRoute
+  '/scenario-lab': typeof ScenarioLabRoute
   '/validation': typeof ValidationRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks': typeof NotebooksIndexRoute
@@ -118,10 +166,16 @@ export interface FileRoutesById {
   '/checkpoints': typeof CheckpointsRoute
   '/comparison': typeof ComparisonRoute
   '/dashboard': typeof DashboardRoute
+  '/exports': typeof ExportsRoute
   '/features': typeof FeaturesRoute
+  '/locations': typeof LocationsRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
+  '/readiness': typeof ReadinessRoute
+  '/results': typeof ResultsRoute
+  '/runs': typeof RunsRoute
   '/scenario': typeof ScenarioRoute
+  '/scenario-lab': typeof ScenarioLabRoute
   '/validation': typeof ValidationRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks/': typeof NotebooksIndexRoute
@@ -134,10 +188,16 @@ export interface FileRouteTypes {
     | '/checkpoints'
     | '/comparison'
     | '/dashboard'
+    | '/exports'
     | '/features'
+    | '/locations'
     | '/map'
     | '/methodology'
+    | '/readiness'
+    | '/results'
+    | '/runs'
     | '/scenario'
+    | '/scenario-lab'
     | '/validation'
     | '/notebooks/$id'
     | '/notebooks/'
@@ -148,10 +208,16 @@ export interface FileRouteTypes {
     | '/checkpoints'
     | '/comparison'
     | '/dashboard'
+    | '/exports'
     | '/features'
+    | '/locations'
     | '/map'
     | '/methodology'
+    | '/readiness'
+    | '/results'
+    | '/runs'
     | '/scenario'
+    | '/scenario-lab'
     | '/validation'
     | '/notebooks/$id'
     | '/notebooks'
@@ -162,10 +228,16 @@ export interface FileRouteTypes {
     | '/checkpoints'
     | '/comparison'
     | '/dashboard'
+    | '/exports'
     | '/features'
+    | '/locations'
     | '/map'
     | '/methodology'
+    | '/readiness'
+    | '/results'
+    | '/runs'
     | '/scenario'
+    | '/scenario-lab'
     | '/validation'
     | '/notebooks/$id'
     | '/notebooks/'
@@ -177,10 +249,16 @@ export interface RootRouteChildren {
   CheckpointsRoute: typeof CheckpointsRoute
   ComparisonRoute: typeof ComparisonRoute
   DashboardRoute: typeof DashboardRoute
+  ExportsRoute: typeof ExportsRoute
   FeaturesRoute: typeof FeaturesRoute
+  LocationsRoute: typeof LocationsRoute
   MapRoute: typeof MapRoute
   MethodologyRoute: typeof MethodologyRoute
+  ReadinessRoute: typeof ReadinessRoute
+  ResultsRoute: typeof ResultsRoute
+  RunsRoute: typeof RunsRoute
   ScenarioRoute: typeof ScenarioRoute
+  ScenarioLabRoute: typeof ScenarioLabRoute
   ValidationRoute: typeof ValidationRoute
   NotebooksIdRoute: typeof NotebooksIdRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
@@ -195,11 +273,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ValidationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/scenario-lab': {
+      id: '/scenario-lab'
+      path: '/scenario-lab'
+      fullPath: '/scenario-lab'
+      preLoaderRoute: typeof ScenarioLabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scenario': {
       id: '/scenario'
       path: '/scenario'
       fullPath: '/scenario'
       preLoaderRoute: typeof ScenarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/runs': {
+      id: '/runs'
+      path: '/runs'
+      fullPath: '/runs'
+      preLoaderRoute: typeof RunsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/results': {
+      id: '/results'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof ResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/readiness': {
+      id: '/readiness'
+      path: '/readiness'
+      fullPath: '/readiness'
+      preLoaderRoute: typeof ReadinessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/methodology': {
@@ -216,11 +322,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/locations': {
+      id: '/locations'
+      path: '/locations'
+      fullPath: '/locations'
+      preLoaderRoute: typeof LocationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/features': {
       id: '/features'
       path: '/features'
       fullPath: '/features'
       preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exports': {
+      id: '/exports'
+      path: '/exports'
+      fullPath: '/exports'
+      preLoaderRoute: typeof ExportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -281,10 +401,16 @@ const rootRouteChildren: RootRouteChildren = {
   CheckpointsRoute: CheckpointsRoute,
   ComparisonRoute: ComparisonRoute,
   DashboardRoute: DashboardRoute,
+  ExportsRoute: ExportsRoute,
   FeaturesRoute: FeaturesRoute,
+  LocationsRoute: LocationsRoute,
   MapRoute: MapRoute,
   MethodologyRoute: MethodologyRoute,
+  ReadinessRoute: ReadinessRoute,
+  ResultsRoute: ResultsRoute,
+  RunsRoute: RunsRoute,
   ScenarioRoute: ScenarioRoute,
+  ScenarioLabRoute: ScenarioLabRoute,
   ValidationRoute: ValidationRoute,
   NotebooksIdRoute: NotebooksIdRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
