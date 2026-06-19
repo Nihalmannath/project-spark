@@ -1,93 +1,171 @@
-import { useMemo, useState } from "react";
+import { useEffect, useRef } from "react";
+import mapboxgl from "mapbox-gl";
 import { HEXES, type HexPrediction } from "../data/mockData";
 import { LABELS, type LabelKey } from "../data/labels";
 
-interface MapDashboardProps {
-  filterLabel?: LabelKey | null;
-  onSelect: (hex: HexPrediction) => void;
-  selectedId?: string | null;
-  scenarioShift?: (h: HexPrediction) => LabelKey;
-  hideLowConfidence?: boolean;
-}
+mapboxgl.accessToken =
+  "pk.eyJ1IjoibmloYWxtYW5uYXQiLCJhIjoiY21tazBtcnN3MWlxNjJwcGoyaWV0bTVkbCJ9.c4Z-f2893U_oc2iRte2LBg";
 
-const HEX_SIZE = 22;
-const HEX_W = Math.sqrt(3) * HEX_SIZE;
-const HEX_H = 2 * HEX_SIZE;
+// Bengaluru center
+const CENTER: [number, number] = [77.5946, 12.9716];
+// Hex size in degrees (≈ 1.4km)
+const HEX_R = 0.013;
 
-function hexPoints(cx: number, cy: number, size: number) {
-  const pts: string[] = [];
+function hexPolygon(cx: number, cy: number, r: number): [number, number][] {
+  const pts: [number, number][] = [];
   for (let i = 0; i < 6; i++) {
-    const angle = (Math.PI / 180) * (60 * i - 30);
-    pts.push(`${cx + size * Math.cos(angle)},${cy + size * Math.sin(angle)}`);
+    const a = (Math.PI / 180) * (60 * i - 30);
+    pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a) * 0.9]);
   }
-  return pts.join(" ");
+  pts.push(pts[0]);
+  return pts;
 }
 
-export function MapDashboard({
-  filterLabel,
-  onSelect,
-  selectedId,
-  scenarioShift,
-  hideLowConfidence,
-}: MapDashboardProps) {
-  const [hoverId, setHoverId] = useState<string | null>(null);
+function colorHex(c: string) {
+  // resolve CSS-variable-style colors to literal hex (mapbox needs literals)
+  const map: Record<string, string> = {
+    desert: "#d59e71",
+    swamp: "#3d5a80",
+    mirage: "#ffe09d",
+    oasis: "#b9ca9d",
+    unknown: "#c9d4e0",
+  };
+  return map[c] || "#888";
+}
 
-  const positioned = useMemo(() => {
-    return HEXES.map((h) => {
-      const x = h.col * HEX_W + (h.row % 2 === 1 ? HEX_W / 2 : 0) + HEX_W;
-      const y = h.row * (HEX_H * 0.75) + HEX_H / 2;
-      return { hex: h, x, y };
+function buildFeatureCollection(filter?: LabelKey | null, hideLowConf?: boolean) {
+  const features = HEXES
+    .filter((h) => !(hideLowConf && h.confidence < 0.6))
+    .map((h) => {
+      const dx = (h.col - 7) * HEX_R * 1.732;
+      const dy = (h.row - 6) * HEX_R * 1.5;
+      const cx = CENTER[0] + dx + (h.row % 2 === 1 ? HEX_R * 0.866 : 0);
+      const cy = CENTER[1] - dy;
+      return {
+        type: "Feature" as const,
+        id: parseInt(h.id.slice(1), 10),
+        geometry: { type: "Polygon" as const, coordinates: [hexPolygon(cx, cy, HEX_R)] },
+        properties: {
+          id: h.id,
+          predicted: h.predicted,
+          color: colorHex(h.predicted),
+          confidence: h.confidence,
+          dim: filter && h.predicted !== filter ? 1 : 0,
+        },
+      };
     });
-  }, []);
+  return { type: "FeatureCollection" as const, features };
+}
 
-  const xs = positioned.map((p) => p.x);
-  const ys = positioned.map((p) => p.y);
-  const minX = Math.min(...xs) - HEX_W;
-  const minY = Math.min(...ys) - HEX_H;
-  const maxX = Math.max(...xs) + HEX_W;
-  const maxY = Math.max(...ys) + HEX_H;
+interface Props {
+  filterLabel?: LabelKey | null;
+  hideLowConfidence?: boolean;
+  selectedId?: string | null;
+  onSelect: (hex: HexPrediction) => void;
+}
+
+export function MapDashboard({ filterLabel, hideLowConfidence, selectedId, onSelect }: Props) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+    const map = new mapboxgl.Map({
+      container: containerRef.current,
+      style: "mapbox://styles/mapbox/light-v11",
+      center: CENTER,
+      zoom: 10.3,
+      attributionControl: false,
+    });
+    mapRef.current = map;
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
+    map.addControl(new mapboxgl.AttributionControl({ compact: true }));
+
+    map.on("load", () => {
+      map.addSource("hexes", { type: "geojson", data: buildFeatureCollection() });
+      map.addLayer({
+        id: "hex-fill",
+        type: "fill",
+        source: "hexes",
+        paint: {
+          "fill-color": ["get", "color"],
+          "fill-opacity": [
+            "case",
+            ["==", ["get", "dim"], 1], 0.18,
+            ["boolean", ["feature-state", "selected"], false], 0.95,
+            0.72,
+          ],
+        },
+      });
+      map.addLayer({
+        id: "hex-outline",
+        type: "line",
+        source: "hexes",
+        paint: {
+          "line-color": [
+            "case",
+            ["boolean", ["feature-state", "selected"], false], "#1a1a1a",
+            "rgba(26,26,26,0.25)",
+          ],
+          "line-width": [
+            "case",
+            ["boolean", ["feature-state", "selected"], false], 2.2,
+            0.6,
+          ],
+        },
+      });
+
+      map.on("click", "hex-fill", (e) => {
+        const f = e.features?.[0];
+        if (!f) return;
+        const id = f.properties?.id as string;
+        const hex = HEXES.find((h) => h.id === id);
+        if (hex) onSelect(hex);
+      });
+      map.on("mouseenter", "hex-fill", () => { map.getCanvas().style.cursor = "pointer"; });
+      map.on("mouseleave", "hex-fill", () => { map.getCanvas().style.cursor = ""; });
+    });
+    return () => { map.remove(); mapRef.current = null; };
+  }, [onSelect]);
+
+  // Update source on filter / hideLowConfidence changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      const src = map.getSource("hexes") as mapboxgl.GeoJSONSource | undefined;
+      if (src) src.setData(buildFeatureCollection(filterLabel, hideLowConfidence));
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once("load", apply);
+  }, [filterLabel, hideLowConfidence]);
+
+  // Highlight selection via feature-state
+  const lastSelRef = useRef<number | null>(null);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      if (lastSelRef.current != null) {
+        map.setFeatureState({ source: "hexes", id: lastSelRef.current }, { selected: false });
+      }
+      if (selectedId) {
+        const numeric = parseInt(selectedId.slice(1), 10);
+        map.setFeatureState({ source: "hexes", id: numeric }, { selected: true });
+        lastSelRef.current = numeric;
+      } else {
+        lastSelRef.current = null;
+      }
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once("load", apply);
+  }, [selectedId]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-lg border border-border bg-[var(--paper)]">
-      {/* TODO(integration): swap this SVG mock for a Leaflet/Maplibre layer
-          rendering `bangalore_access_hex.geojson` once the file is wired in. */}
-      <svg
-        viewBox={`${minX} ${minY} ${maxX - minX} ${maxY - minY}`}
-        className="h-full w-full"
-        role="img"
-        aria-label="Mock food environment hex map"
-      >
-        <defs>
-          <pattern id="lowconf" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
-            <rect width="6" height="6" fill="var(--color-unknown)" />
-            <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(0,0,0,0.2)" strokeWidth="1.2" />
-          </pattern>
-        </defs>
-        {positioned.map(({ hex, x, y }) => {
-          const labelKey: LabelKey = scenarioShift ? scenarioShift(hex) : hex.predicted;
-          if (hideLowConfidence && hex.confidence < 0.6) return null;
-          const dimmed = filterLabel && labelKey !== filterLabel;
-          const isSel = selectedId === hex.id;
-          const isHover = hoverId === hex.id;
-          const fill = labelKey === "unknown" ? "url(#lowconf)" : LABELS[labelKey].color;
-          return (
-            <polygon
-              key={hex.id}
-              points={hexPoints(x, y, HEX_SIZE - 1)}
-              fill={fill}
-              stroke={isSel ? "var(--ink)" : isHover ? "var(--ink)" : "rgba(0,0,0,0.15)"}
-              strokeWidth={isSel ? 2.4 : isHover ? 1.6 : 0.6}
-              opacity={dimmed ? 0.25 : 0.9}
-              className="cursor-pointer transition-opacity"
-              onMouseEnter={() => setHoverId(hex.id)}
-              onMouseLeave={() => setHoverId(null)}
-              onClick={() => onSelect(hex)}
-            />
-          );
-        })}
-      </svg>
-      <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-card/90 px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground shadow-sm backdrop-blur">
-        Bengaluru · adaptive hex grid · prototype
+    <div className="relative h-full w-full overflow-hidden rounded-sm border border-border">
+      <div ref={containerRef} className="absolute inset-0" />
+      <div className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-sm bg-white/90 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-[color:var(--color-ink-deep)] backdrop-blur">
+        Bengaluru · adaptive hex grid · {LABELS.swamp.name.split(" ")[0]} palette
       </div>
     </div>
   );
