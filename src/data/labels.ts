@@ -1,4 +1,4 @@
-export type LabelKey = "desert" | "oasis" | "mirage" | "swamp";
+export type LabelKey = "desert" | "oasis" | "mirage" | "swamp" | "unknown";
 
 export interface LabelDef {
   key: LabelKey;
@@ -17,22 +17,6 @@ export const LABELS: Record<LabelKey, LabelDef> = {
       "Areas with limited access to affordable, nutritious food. Few grocery stores or restaurants within walking distance.",
     color: "var(--color-desert)",
   },
-  oasis: {
-    key: "oasis",
-    name: "Food Oasis",
-    shortDef: "Good access to affordable, quality food",
-    longDef:
-      "Well-served neighbourhoods with strong access to affordable, quality, and diverse food sources.",
-    color: "var(--color-oasis)",
-  },
-  mirage: {
-    key: "mirage",
-    name: "Food Mirage",
-    shortDef: "Many outlets but unhealthy or unaffordable",
-    longDef:
-      "Areas with high outlet density but where most options are unaffordable or skew unhealthy — access without affordability.",
-    color: "var(--color-mirage)",
-  },
   swamp: {
     key: "swamp",
     name: "Food Swamp",
@@ -41,6 +25,30 @@ export const LABELS: Record<LabelKey, LabelDef> = {
       "Saturated by fast food, junk food, and low-quality outlets that crowd out healthier options.",
     color: "var(--color-swamp)",
   },
+  mirage: {
+    key: "mirage",
+    name: "Food Mirage",
+    shortDef: "Many outlets but unaffordable or unhealthy",
+    longDef:
+      "Areas with high outlet density but where most options are unaffordable or skew unhealthy — access without affordability.",
+    color: "var(--color-mirage)",
+  },
+  oasis: {
+    key: "oasis",
+    name: "Food Oasis",
+    shortDef: "Good access to affordable, quality food",
+    longDef:
+      "Well-served neighbourhoods with strong access to affordable, quality, and diverse food sources.",
+    color: "var(--color-oasis)",
+  },
+  unknown: {
+    key: "unknown",
+    name: "Unknown / Low confidence",
+    shortDef: "Insufficient data or model confidence",
+    longDef:
+      "Areas where the model's prediction confidence falls below the operational threshold. Treat as needing further validation.",
+    color: "var(--color-unknown)",
+  },
 };
 
-export const LABEL_ORDER: LabelKey[] = ["desert", "oasis", "mirage", "swamp"];
+export const LABEL_ORDER: LabelKey[] = ["desert", "swamp", "mirage", "oasis", "unknown"];
