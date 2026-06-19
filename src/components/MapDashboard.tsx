@@ -33,10 +33,15 @@ function colorHex(c: string) {
   return map[c] || "#888";
 }
 
-function buildFeatureCollection(filter?: LabelKey | null, hideLowConf?: boolean) {
+function buildFeatureCollection(
+  filter?: LabelKey | null,
+  hideLowConf?: boolean,
+  shift?: (h: HexPrediction) => LabelKey,
+) {
   const features = HEXES
     .filter((h) => !(hideLowConf && h.confidence < 0.6))
     .map((h) => {
+      const label = shift ? shift(h) : h.predicted;
       const dx = (h.col - 7) * HEX_R * 1.732;
       const dy = (h.row - 6) * HEX_R * 1.5;
       const cx = CENTER[0] + dx + (h.row % 2 === 1 ? HEX_R * 0.866 : 0);
@@ -47,10 +52,10 @@ function buildFeatureCollection(filter?: LabelKey | null, hideLowConf?: boolean)
         geometry: { type: "Polygon" as const, coordinates: [hexPolygon(cx, cy, HEX_R)] },
         properties: {
           id: h.id,
-          predicted: h.predicted,
-          color: colorHex(h.predicted),
+          predicted: label,
+          color: colorHex(label),
           confidence: h.confidence,
-          dim: filter && h.predicted !== filter ? 1 : 0,
+          dim: filter && label !== filter ? 1 : 0,
         },
       };
     });
@@ -61,10 +66,11 @@ interface Props {
   filterLabel?: LabelKey | null;
   hideLowConfidence?: boolean;
   selectedId?: string | null;
+  scenarioShift?: (h: HexPrediction) => LabelKey;
   onSelect: (hex: HexPrediction) => void;
 }
 
-export function MapDashboard({ filterLabel, hideLowConfidence, selectedId, onSelect }: Props) {
+export function MapDashboard({ filterLabel, hideLowConfidence, selectedId, scenarioShift, onSelect }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
 
