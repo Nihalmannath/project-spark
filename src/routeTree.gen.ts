@@ -9,38 +9,148 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MethodologyRouteImport } from './routes/methodology'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as ComparisonRouteImport } from './routes/comparison'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
+import { Route as NotebooksIdRouteImport } from './routes/notebooks.$id'
 
+const MethodologyRoute = MethodologyRouteImport.update({
+  id: '/methodology',
+  path: '/methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComparisonRoute = ComparisonRouteImport.update({
+  id: '/comparison',
+  path: '/comparison',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotebooksIndexRoute = NotebooksIndexRouteImport.update({
+  id: '/notebooks/',
+  path: '/notebooks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotebooksIdRoute = NotebooksIdRouteImport.update({
+  id: '/notebooks/$id',
+  path: '/notebooks/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/comparison': typeof ComparisonRoute
+  '/map': typeof MapRoute
+  '/methodology': typeof MethodologyRoute
+  '/notebooks/$id': typeof NotebooksIdRoute
+  '/notebooks/': typeof NotebooksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/comparison': typeof ComparisonRoute
+  '/map': typeof MapRoute
+  '/methodology': typeof MethodologyRoute
+  '/notebooks/$id': typeof NotebooksIdRoute
+  '/notebooks': typeof NotebooksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/comparison': typeof ComparisonRoute
+  '/map': typeof MapRoute
+  '/methodology': typeof MethodologyRoute
+  '/notebooks/$id': typeof NotebooksIdRoute
+  '/notebooks/': typeof NotebooksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/comparison'
+    | '/map'
+    | '/methodology'
+    | '/notebooks/$id'
+    | '/notebooks/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/comparison'
+    | '/map'
+    | '/methodology'
+    | '/notebooks/$id'
+    | '/notebooks'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/comparison'
+    | '/map'
+    | '/methodology'
+    | '/notebooks/$id'
+    | '/notebooks/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  ComparisonRoute: typeof ComparisonRoute
+  MapRoute: typeof MapRoute
+  MethodologyRoute: typeof MethodologyRoute
+  NotebooksIdRoute: typeof NotebooksIdRoute
+  NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/methodology': {
+      id: '/methodology'
+      path: '/methodology'
+      fullPath: '/methodology'
+      preLoaderRoute: typeof MethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comparison': {
+      id: '/comparison'
+      path: '/comparison'
+      fullPath: '/comparison'
+      preLoaderRoute: typeof ComparisonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +158,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notebooks/': {
+      id: '/notebooks/'
+      path: '/notebooks'
+      fullPath: '/notebooks/'
+      preLoaderRoute: typeof NotebooksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notebooks/$id': {
+      id: '/notebooks/$id'
+      path: '/notebooks/$id'
+      fullPath: '/notebooks/$id'
+      preLoaderRoute: typeof NotebooksIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  ComparisonRoute: ComparisonRoute,
+  MapRoute: MapRoute,
+  MethodologyRoute: MethodologyRoute,
+  NotebooksIdRoute: NotebooksIdRoute,
+  NotebooksIndexRoute: NotebooksIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

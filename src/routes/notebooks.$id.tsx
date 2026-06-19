@@ -117,7 +117,7 @@ function NotebookDetail() {
         <section className="mt-16">
           <h2 className="font-serif text-2xl text-foreground">Raw input data</h2>
           <dl className="mt-4 rounded-md border bg-card p-6">
-            {nb.rawSources.map((s) => (
+            {nb.rawSources.map((s: { name: string; detail: string }) => (
               <KeyValueRow key={s.name} label={s.name}>
                 {s.detail}
               </KeyValueRow>
