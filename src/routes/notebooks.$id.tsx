@@ -1,8 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { getNotebook, NOTEBOOKS } from "@/data/notebooks";
+import { getNotebook, NOTEBOOKS, type NotebookRecord } from "@/data/notebooks";
 import { LABELS, LABEL_ORDER } from "@/data/labels";
-import {
+import { ArrowLeft, ArrowRight } from "lucide-react";
   MetricCard,
   Mono,
   KeyValueRow,
