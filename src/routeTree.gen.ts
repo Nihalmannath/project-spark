@@ -9,14 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ValidationRouteImport } from './routes/validation'
+import { Route as ScenarioRouteImport } from './routes/scenario'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ComparisonRouteImport } from './routes/comparison'
+import { Route as CheckpointsRouteImport } from './routes/checkpoints'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
 import { Route as NotebooksIdRouteImport } from './routes/notebooks.$id'
 
+const ValidationRoute = ValidationRouteImport.update({
+  id: '/validation',
+  path: '/validation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScenarioRoute = ScenarioRouteImport.update({
+  id: '/scenario',
+  path: '/scenario',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MethodologyRoute = MethodologyRouteImport.update({
   id: '/methodology',
   path: '/methodology',
@@ -27,9 +42,24 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ComparisonRoute = ComparisonRouteImport.update({
   id: '/comparison',
   path: '/comparison',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckpointsRoute = CheckpointsRouteImport.update({
+  id: '/checkpoints',
+  path: '/checkpoints',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -56,18 +86,28 @@ const NotebooksIdRoute = NotebooksIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/checkpoints': typeof CheckpointsRoute
   '/comparison': typeof ComparisonRoute
+  '/dashboard': typeof DashboardRoute
+  '/features': typeof FeaturesRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
+  '/scenario': typeof ScenarioRoute
+  '/validation': typeof ValidationRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks/': typeof NotebooksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/checkpoints': typeof CheckpointsRoute
   '/comparison': typeof ComparisonRoute
+  '/dashboard': typeof DashboardRoute
+  '/features': typeof FeaturesRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
+  '/scenario': typeof ScenarioRoute
+  '/validation': typeof ValidationRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks': typeof NotebooksIndexRoute
 }
@@ -75,9 +115,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/checkpoints': typeof CheckpointsRoute
   '/comparison': typeof ComparisonRoute
+  '/dashboard': typeof DashboardRoute
+  '/features': typeof FeaturesRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
+  '/scenario': typeof ScenarioRoute
+  '/validation': typeof ValidationRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks/': typeof NotebooksIndexRoute
 }
@@ -86,27 +131,42 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/checkpoints'
     | '/comparison'
+    | '/dashboard'
+    | '/features'
     | '/map'
     | '/methodology'
+    | '/scenario'
+    | '/validation'
     | '/notebooks/$id'
     | '/notebooks/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/checkpoints'
     | '/comparison'
+    | '/dashboard'
+    | '/features'
     | '/map'
     | '/methodology'
+    | '/scenario'
+    | '/validation'
     | '/notebooks/$id'
     | '/notebooks'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/checkpoints'
     | '/comparison'
+    | '/dashboard'
+    | '/features'
     | '/map'
     | '/methodology'
+    | '/scenario'
+    | '/validation'
     | '/notebooks/$id'
     | '/notebooks/'
   fileRoutesById: FileRoutesById
@@ -114,15 +174,34 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  CheckpointsRoute: typeof CheckpointsRoute
   ComparisonRoute: typeof ComparisonRoute
+  DashboardRoute: typeof DashboardRoute
+  FeaturesRoute: typeof FeaturesRoute
   MapRoute: typeof MapRoute
   MethodologyRoute: typeof MethodologyRoute
+  ScenarioRoute: typeof ScenarioRoute
+  ValidationRoute: typeof ValidationRoute
   NotebooksIdRoute: typeof NotebooksIdRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/validation': {
+      id: '/validation'
+      path: '/validation'
+      fullPath: '/validation'
+      preLoaderRoute: typeof ValidationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scenario': {
+      id: '/scenario'
+      path: '/scenario'
+      fullPath: '/scenario'
+      preLoaderRoute: typeof ScenarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/methodology': {
       id: '/methodology'
       path: '/methodology'
@@ -137,11 +216,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/comparison': {
       id: '/comparison'
       path: '/comparison'
       fullPath: '/comparison'
       preLoaderRoute: typeof ComparisonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkpoints': {
+      id: '/checkpoints'
+      path: '/checkpoints'
+      fullPath: '/checkpoints'
+      preLoaderRoute: typeof CheckpointsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -178,9 +278,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  CheckpointsRoute: CheckpointsRoute,
   ComparisonRoute: ComparisonRoute,
+  DashboardRoute: DashboardRoute,
+  FeaturesRoute: FeaturesRoute,
   MapRoute: MapRoute,
   MethodologyRoute: MethodologyRoute,
+  ScenarioRoute: ScenarioRoute,
+  ValidationRoute: ValidationRoute,
   NotebooksIdRoute: NotebooksIdRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
 }
