@@ -2,11 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getNotebook, NOTEBOOKS, type NotebookRecord } from "@/data/notebooks";
 import { LABELS, LABEL_ORDER } from "@/data/labels";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-  MetricCard,
-  Mono,
-  KeyValueRow,
-} from "@/components/primitives";
+import { MetricCard, Mono, KeyValueRow } from "@/components/primitives";
 
 export const Route = createFileRoute("/notebooks/$id")({
   loader: ({ params }) => {
@@ -35,7 +31,8 @@ export const Route = createFileRoute("/notebooks/$id")({
 });
 
 function NotebookDetail() {
-  const { nb } = Route.useLoaderData();
+  const data = Route.useLoaderData() as { nb: NotebookRecord };
+  const nb = data.nb;
   const idx = NOTEBOOKS.findIndex((n) => n.id === nb.id);
   const prev = idx > 0 ? NOTEBOOKS[idx - 1] : null;
   const next = idx < NOTEBOOKS.length - 1 ? NOTEBOOKS[idx + 1] : null;
