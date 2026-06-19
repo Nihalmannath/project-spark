@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter } from "../components/site-chrome";
 import { TransferProvider } from "../lib/transfer-context";
+import { CityProvider } from "../lib/city-context";
 
 function NotFoundComponent() {
   return (
@@ -124,13 +125,15 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <TransferProvider>
-        <div className="flex min-h-screen flex-col bg-background">
-          <SiteHeader />
-          <main className="flex-1">
-            <Outlet />
-          </main>
-          <SiteFooter />
-        </div>
+        <CityProvider>
+          <div className="flex min-h-screen flex-col bg-background">
+            <SiteHeader />
+            <main className="flex-1">
+              <Outlet />
+            </main>
+            <SiteFooter />
+          </div>
+        </CityProvider>
       </TransferProvider>
     </QueryClientProvider>
   );
