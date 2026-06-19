@@ -7,7 +7,7 @@ import { type HexPrediction } from "../data/mockData";
 import { LABELS, LABEL_ORDER, type LabelKey } from "../data/labels";
 
 export const Route = createFileRoute("/scenario-lab")({
-  head: () => ({ meta: [{ title: "Scenario Lab — Food Spatial Intelligence Platform" }] }),
+  head: () => ({ meta: [{ title: "What If? — Food Access Planning Tool" }] }),
   component: ScenarioLab,
 });
 
@@ -15,9 +15,9 @@ interface ScState {
   interventionType: "grocery_hub" | "weekly_market" | "subsidised_outlet";
   hubCol: number;
   hubRow: number;
-  radius: number; // grid cells
+  radius: number;
   addedOutlets: number;
-  nearestFoodShift: number; // km reduction
+  nearestFoodShift: number;
 }
 
 const INITIAL: ScState = {
@@ -29,6 +29,12 @@ const INITIAL: ScState = {
   nearestFoodShift: 0.6,
 };
 
+const INTERVENTION_LABELS: Record<ScState["interventionType"], string> = {
+  grocery_hub: "New grocery store",
+  weekly_market: "Weekly farmers market",
+  subsidised_outlet: "Subsidised food outlet",
+};
+
 function ScenarioLab() {
   const [s, setS] = useState<ScState>(INITIAL);
   const { target, setTargetId } = useTransfer();
@@ -37,7 +43,6 @@ function ScenarioLab() {
     return (h: HexPrediction): LabelKey => {
       const d = Math.hypot(h.col - s.hubCol, h.row - s.hubRow);
       if (d > s.radius) return h.predicted;
-      // Within radius: improve label by intensity
       const intensity =
         (1 - d / (s.radius + 0.5)) * (s.addedOutlets / 6) * (s.nearestFoodShift / 0.6);
       const order: LabelKey[] = ["desert", "swamp", "mirage", "oasis"];
@@ -72,7 +77,8 @@ function ScenarioLab() {
 
   const affected = useMemo(
     () =>
-      MYSURU_HEXES.filter((h) => Math.hypot(h.col - s.hubCol, h.row - s.hubRow) <= s.radius).length,
+      MYSURU_HEXES.filter((h) => Math.hypot(h.col - s.hubCol, h.row - s.hubRow) <= s.radius)
+        .length,
     [s.hubCol, s.hubRow, s.radius],
   );
 
@@ -80,19 +86,17 @@ function ScenarioLab() {
     return (
       <div className="mx-auto max-w-[1400px] px-6 py-6">
         <header className="border-b border-border pb-4">
-          <h1 className="font-serif text-2xl text-foreground">Scenario Lab</h1>
+          <h1 className="font-serif text-2xl text-foreground">What If?</h1>
         </header>
         <div className="mt-6 rounded-sm border border-dashed border-border bg-background p-8 text-center">
-          <p className="smallcaps text-[10px] text-muted-foreground">Not enabled</p>
           <p className="mt-2 mx-auto max-w-xl font-serif text-base text-foreground">
-            Scenario tools become available after the selected target has a completed transfer run.
-            Mysuru is the verified demonstration target in this prototype.
+            Scenario planning is available for Mysuru. Load the demo to get started.
           </p>
           <button
             onClick={() => setTargetId("mysuru")}
             className="mt-4 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
           >
-            Load verified demo
+            Load Mysuru demo
           </button>
         </div>
       </div>
@@ -103,28 +107,20 @@ function ScenarioLab() {
     <div className="mx-auto max-w-[1400px] px-6 py-6">
       <header className="flex items-end justify-between border-b border-border pb-4">
         <div>
-          <h1 className="font-serif text-2xl text-foreground">Scenario Lab · Mysuru</h1>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Frozen Bengaluru checkpoint <span className="font-mono">ckpt_blr_08</span> rerun on
-            perturbed Mysuru features.
-          </p>
+          <h1 className="font-serif text-2xl text-foreground">
+            What would change if we added food access here?
+          </h1>
+          <p className="mt-1 text-xs text-muted-foreground">Mysuru · exploring policy options</p>
         </div>
         <Link to="/results" className="text-xs text-muted-foreground hover:text-foreground">
-          ← back to results
+          ← Back to map
         </Link>
       </header>
-
-      {/* Loud projection warning */}
-      <div className="mt-4 rounded-sm border-l-4 border-[#d59e71] bg-[#fbeede]/60 px-4 py-3 text-xs text-[#7a4a1f]">
-        <span className="smallcaps text-[9px]">Projection · not certainty</span> — relative change
-        between baseline and scenario is the signal. Absolute baseline classes carry no local
-        validation.
-      </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[260px_1fr_1fr_280px]">
         {/* Controls */}
         <aside className="rounded-sm border border-border bg-background p-4">
-          <p className="smallcaps text-[9px] text-muted-foreground">Intervention</p>
+          <p className="smallcaps text-[9px] text-muted-foreground">Type of intervention</p>
           <select
             value={s.interventionType}
             onChange={(e) =>
@@ -132,13 +128,13 @@ function ScenarioLab() {
             }
             className="mt-2 w-full rounded-sm border border-border bg-background px-2 py-1.5 text-xs"
           >
-            <option value="grocery_hub">Grocery hub</option>
-            <option value="weekly_market">Weekly market</option>
-            <option value="subsidised_outlet">Subsidised outlet</option>
+            <option value="grocery_hub">New grocery store</option>
+            <option value="weekly_market">Weekly farmers market</option>
+            <option value="subsidised_outlet">Subsidised food outlet</option>
           </select>
 
           <Slider
-            label="Intervention radius (cells)"
+            label="Area of impact (neighbourhoods)"
             value={s.radius}
             min={1}
             max={5}
@@ -146,7 +142,7 @@ function ScenarioLab() {
             onChange={(v) => setS({ ...s, radius: v })}
           />
           <Slider
-            label="Added food outlets"
+            label="New food outlets added"
             value={s.addedOutlets}
             min={0}
             max={12}
@@ -154,19 +150,13 @@ function ScenarioLab() {
             onChange={(v) => setS({ ...s, addedOutlets: v })}
           />
           <Slider
-            label="Nearest-food distance reduction (km)"
+            label="Reduction in walking distance to food (km)"
             value={s.nearestFoodShift}
             min={0}
             max={1.5}
             step={0.1}
             onChange={(v) => setS({ ...s, nearestFoodShift: v })}
           />
-
-          <p className="smallcaps mt-4 text-[9px] text-muted-foreground">Hub location (grid)</p>
-          <div className="mt-1 grid grid-cols-2 gap-2">
-            <NumInput label="col" v={s.hubCol} onChange={(v) => setS({ ...s, hubCol: v })} />
-            <NumInput label="row" v={s.hubRow} onChange={(v) => setS({ ...s, hubRow: v })} />
-          </div>
 
           <button
             onClick={() => setS(INITIAL)}
@@ -178,7 +168,7 @@ function ScenarioLab() {
 
         {/* Before */}
         <div>
-          <p className="smallcaps mb-1 text-[9px] text-muted-foreground">Baseline projection</p>
+          <p className="smallcaps mb-1 text-[9px] text-muted-foreground">Current situation</p>
           <div className="h-[480px]">
             <MapDashboard
               hexes={MYSURU_HEXES}
@@ -186,14 +176,14 @@ function ScenarioLab() {
               zoom={target!.zoom}
               scale={0.7}
               onSelect={() => {}}
-              caption="Baseline · transfer projection"
+              caption="Current situation"
             />
           </div>
         </div>
 
         {/* After */}
         <div>
-          <p className="smallcaps mb-1 text-[9px] text-muted-foreground">Scenario projection</p>
+          <p className="smallcaps mb-1 text-[9px] text-muted-foreground">With proposed changes</p>
           <div className="h-[480px]">
             <MapDashboard
               hexes={MYSURU_HEXES}
@@ -202,7 +192,7 @@ function ScenarioLab() {
               scale={0.7}
               scenarioShift={shift}
               onSelect={() => {}}
-              caption={`Scenario · ${s.interventionType.replace("_", " ")}`}
+              caption={`With ${INTERVENTION_LABELS[s.interventionType].toLowerCase()}`}
             />
           </div>
         </div>
@@ -212,17 +202,17 @@ function ScenarioLab() {
           <div className="rounded-sm border border-border bg-background p-3">
             <p className="smallcaps text-[9px] text-muted-foreground">Scenario summary</p>
             <dl className="mt-2 grid grid-cols-2 gap-y-1.5 text-xs">
-              <dt className="text-muted-foreground">Affected nodes</dt>
+              <dt className="text-muted-foreground">Neighbourhoods affected</dt>
               <dd className="font-mono text-foreground">{affected}</dd>
-              <dt className="text-muted-foreground">Changed labels</dt>
+              <dt className="text-muted-foreground">Neighbourhoods with improved access</dt>
               <dd className="font-mono text-foreground">{changedNodes}</dd>
-              <dt className="text-muted-foreground">Out of food desert</dt>
+              <dt className="text-muted-foreground">Moved out of food desert</dt>
               <dd className="font-mono text-foreground">{outOfDesert}</dd>
             </dl>
           </div>
 
           <div className="rounded-sm border border-border bg-background p-3">
-            <p className="smallcaps text-[9px] text-muted-foreground">Label transitions</p>
+            <p className="smallcaps text-[9px] text-muted-foreground">Label changes</p>
             {transitions.length === 0 ? (
               <p className="mt-2 text-[11px] text-muted-foreground">
                 No changes — adjust controls.
@@ -243,17 +233,10 @@ function ScenarioLab() {
             )}
           </div>
 
-          <div className="rounded-sm border border-border bg-background p-3 text-[11px] text-muted-foreground">
-            <p className="smallcaps text-[9px]">Assumptions</p>
-            <ul className="mt-1.5 space-y-1">
-              <li>
-                — Perturbation applied to <span className="font-mono">nearest_food_km</span> and
-                outlet counts.
-              </li>
-              <li>— No change to road graph or population.</li>
-              <li>— Confidence not recomputed; treat as comparable to baseline only.</li>
-            </ul>
+          <div className="rounded-sm border border-border bg-background p-3 text-[11px] italic text-muted-foreground">
+            These are estimates to help explore options, not predictions of real outcomes.
           </div>
+
           <div>
             <p className="smallcaps text-[9px] text-muted-foreground mb-1">Legend</p>
             <div className="grid grid-cols-5 gap-1">
@@ -289,29 +272,6 @@ function Slider({
   step: number;
   onChange: (v: number) => void;
 }) {
-  if (target?.id !== "mysuru") {
-    return (
-      <div className="mx-auto max-w-[1400px] px-6 py-6">
-        <header className="border-b border-border pb-4">
-          <h1 className="font-serif text-2xl text-foreground">Scenario Lab</h1>
-        </header>
-        <div className="mt-6 rounded-sm border border-dashed border-border bg-background p-8 text-center">
-          <p className="smallcaps text-[10px] text-muted-foreground">Not enabled</p>
-          <p className="mt-2 mx-auto max-w-xl font-serif text-base text-foreground">
-            Scenario tools become available after the selected target has a completed transfer run.
-            Mysuru is the verified demonstration target in this prototype.
-          </p>
-          <button
-            onClick={() => setTargetId("mysuru")}
-            className="mt-4 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
-          >
-            Load verified demo
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between">
@@ -330,74 +290,8 @@ function Slider({
     </div>
   );
 }
-function NumInput({
-  label,
-  v,
-  onChange,
-}: {
-  label: string;
-  v: number;
-  onChange: (v: number) => void;
-}) {
-  if (target?.id !== "mysuru") {
-    return (
-      <div className="mx-auto max-w-[1400px] px-6 py-6">
-        <header className="border-b border-border pb-4">
-          <h1 className="font-serif text-2xl text-foreground">Scenario Lab</h1>
-        </header>
-        <div className="mt-6 rounded-sm border border-dashed border-border bg-background p-8 text-center">
-          <p className="smallcaps text-[10px] text-muted-foreground">Not enabled</p>
-          <p className="mt-2 mx-auto max-w-xl font-serif text-base text-foreground">
-            Scenario tools become available after the selected target has a completed transfer run.
-            Mysuru is the verified demonstration target in this prototype.
-          </p>
-          <button
-            onClick={() => setTargetId("mysuru")}
-            className="mt-4 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
-          >
-            Load verified demo
-          </button>
-        </div>
-      </div>
-    );
-  }
 
-  return (
-    <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
-      {label}
-      <input
-        type="number"
-        value={v}
-        onChange={(e) => onChange(parseInt(e.target.value || "0", 10))}
-        className="w-full rounded-sm border border-border bg-background px-1.5 py-1 font-mono text-foreground"
-      />
-    </label>
-  );
-}
 function Swatch({ k }: { k: LabelKey }) {
-  if (target?.id !== "mysuru") {
-    return (
-      <div className="mx-auto max-w-[1400px] px-6 py-6">
-        <header className="border-b border-border pb-4">
-          <h1 className="font-serif text-2xl text-foreground">Scenario Lab</h1>
-        </header>
-        <div className="mt-6 rounded-sm border border-dashed border-border bg-background p-8 text-center">
-          <p className="smallcaps text-[10px] text-muted-foreground">Not enabled</p>
-          <p className="mt-2 mx-auto max-w-xl font-serif text-base text-foreground">
-            Scenario tools become available after the selected target has a completed transfer run.
-            Mysuru is the verified demonstration target in this prototype.
-          </p>
-          <button
-            onClick={() => setTargetId("mysuru")}
-            className="mt-4 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
-          >
-            Load verified demo
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <span className="inline-block size-2.5 rounded-sm" style={{ background: LABELS[k].color }} />
   );

@@ -80,17 +80,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Cross-City Food Environment Transfer" },
+      { title: "Food Access Planning Tool" },
       {
         name: "description",
         content:
-          "A research workspace for auditing and transferring trained urban food-environment models between cities.",
+          "Explore food access patterns in Indian cities and model the impact of policy interventions.",
       },
-      { property: "og:title", content: "Cross-City Food Environment Transfer" },
+      { property: "og:title", content: "Food Access Planning Tool" },
       {
         property: "og:description",
         content:
-          "Select a trained source-city checkpoint, audit a target city, and produce an uncertainty-aware cross-city projection.",
+          "Explore food access patterns in Indian cities and model the impact of policy interventions.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
