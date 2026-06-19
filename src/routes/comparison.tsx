@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { NotebookCard } from "../components/NotebookCard";
+import { NotebookLeaderboard } from "../components/NotebookLeaderboard";
 import { NOTEBOOKS } from "../data/notebooks";
 
 export const Route = createFileRoute("/comparison")({
@@ -14,20 +15,25 @@ export const Route = createFileRoute("/comparison")({
 
 function ComparisonPage() {
   return (
-    <div className="mx-auto max-w-7xl px-6 py-12">
+    <div className="mx-auto max-w-7xl px-6 py-14">
       <header className="mb-10 max-w-3xl">
-        <p className="smallcaps text-[10px] text-muted-foreground">Notebook / Model Comparison</p>
-        <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-foreground">
-          Model checkpoints across the experiment progression
+        <p className="smallcaps text-muted-foreground">Notebook / Model Comparison</p>
+        <h1 className="mt-3 text-4xl font-light leading-tight tracking-tight text-[color:var(--color-navy)]">
+          <span className="italic">Each experiment</span>, side by side.
         </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Each card summarises one notebook: purpose, input features, model method, output type, and
-          headline metrics. Placeholder metrics will be auto-replaced once real evaluation artifacts
-          are wired in from the repo.
-        </p>
       </header>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="rounded-sm border border-border bg-card p-6">
+        <p className="smallcaps text-muted-foreground">Macro-F1 across notebooks</p>
+        <div className="mt-4">
+          <NotebookLeaderboard height={340} />
+        </div>
+        <p className="source-note mt-4">
+          Source: spatial 5-fold cross-validation · per-notebook seeds · 2026
+        </p>
+      </section>
+
+      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {NOTEBOOKS.map((nb) => (
           <NotebookCard key={nb.id} nb={nb} />
         ))}
