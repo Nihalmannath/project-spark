@@ -4,7 +4,7 @@ import { HEXES, type HexPrediction } from "../data/mockData";
 import { LABELS, type LabelKey } from "../data/labels";
 
 mapboxgl.accessToken =
-  "pk.eyJ1IjoibmloYWxtYW5uYXQiLCJhIjoiY21tazBtcnN3MWlxNjJwcGoyaWV0bTVkbCJ9.c4Z-f2893U_oc2iRte2LBg";
+  "pk.eyJ1IjoibmloYWxtYW5uYXQiLCJhIjoiY21xaTllOGxjMDNmYTJzc2I4YmN6YjhoNyJ9.vrJ2OuIEe-7UZMcPnn36CA";
 
 // Bengaluru center
 const CENTER: [number, number] = [77.5946, 12.9716];
