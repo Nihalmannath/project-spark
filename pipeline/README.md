@@ -21,7 +21,15 @@ The checkpoint is promoted only if macro-F1 ≥ 0.312, every class F1 ≥ 0.15, 
 
 - `GET /api/health` reports model availability and promotion state.
 - `GET /api/meta/{city}` returns coverage, checkpoint provenance, CV/calibration metrics, and label counts.
-- `POST /api/scenario/{city}` recalculates affected features against fixed baseline ECDFs. A promoted model permits unrestricted graph-aware transitions; otherwise the endpoint returns conservative proxy transitions and evaluation-only candidate-model summaries.
+- `POST /api/scenario/{city}` changes notebook 04's food-count, nearest-food, and intersection-density features against fixed baseline ECDFs, then reruns the complete GraphSAGE graph. Responses contain before/after probabilities, uncertainty flags, and `unknown` transitions.
+
+## Notebook 04 source of truth
+
+Run `python pipeline/train_notebook_graphsage.py` to rebuild the calibrated eight-feature checkpoint,
+evaluation report, Mysuru/Bengaluru artifacts, and the matching thesis checkpoint. Run
+`python pipeline/sync_thesis_notebooks.py` after editing the shared workflow so notebooks 03 and 04
+continue to load the same model. The deterministic proxy and 25-feature checkpoint remain comparison
+artifacts only.
 
 ## Tests
 

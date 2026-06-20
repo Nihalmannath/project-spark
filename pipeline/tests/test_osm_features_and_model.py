@@ -28,6 +28,12 @@ from osm_model import (  # noqa: E402
     softmax_probabilities,
     validate_checkpoint,
 )
+from notebook_model import (  # noqa: E402
+    NOTEBOOK_FEATURES,
+    NOTEBOOK_MODEL_VERSION,
+    checkpoint_sha256 as notebook_checkpoint_sha256,
+    load_checkpoint as load_notebook_checkpoint,
+)
 from train_osm_graphsage import _train_final  # noqa: E402
 
 
@@ -62,6 +68,26 @@ class FeatureSchemaTests(unittest.TestCase):
 
 
 class ModelContractTests(unittest.TestCase):
+    def test_notebook_checkpoint_is_valid_and_matches_metadata(self):
+        checkpoint_path = PIPELINE / "models" / "notebook04_graphsage_v2.pt"
+        metadata_path = PIPELINE / "models" / "notebook04_graphsage_v2_meta.json"
+        metadata = json.loads(metadata_path.read_text())
+        checkpoint, model = load_notebook_checkpoint(checkpoint_path)
+        self.assertEqual(checkpoint["model_version"], NOTEBOOK_MODEL_VERSION)
+        self.assertEqual(checkpoint["feature_names"], NOTEBOOK_FEATURES)
+        self.assertEqual(notebook_checkpoint_sha256(checkpoint_path), metadata["checkpoint_sha256"])
+        self.assertEqual(model.conv1.in_channels, len(NOTEBOOK_FEATURES))
+
+    def test_notebook_promotion_meets_historical_gate(self):
+        metadata = json.loads(
+            (PIPELINE / "models" / "notebook04_graphsage_v2_meta.json").read_text()
+        )
+        metrics = metadata["metrics"]
+        self.assertTrue(metadata["promotion_passed"])
+        self.assertGreaterEqual(metrics["spatial_cv_macro_f1"], 0.292)
+        self.assertGreaterEqual(metrics["selective_coverage"], 0.60)
+        self.assertTrue(all(metrics["promotion_checks"].values()))
+
     def test_probabilities_normalize_and_calibration_metric_is_bounded(self):
         logits = np.array([[2.0, 1.0, 0.0, -1.0], [0.0, 1.0, 2.0, 3.0]])
         probabilities = softmax_probabilities(logits, temperature=1.5)

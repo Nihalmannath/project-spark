@@ -1,0 +1,122 @@
+{
+  "model_version": "notebook04-graphsage-mysuru-v2.0.0",
+  "schema_version": "notebook-osm-road-food-v2.0.0",
+  "feature_names": [
+    "food_800m",
+    "food_1500m",
+    "nearest_food_km",
+    "road_degree",
+    "road_rank_mean",
+    "road_rank_max",
+    "inter_density_1km",
+    "major_road_dist_km"
+  ],
+  "class_keys": [
+    "desert",
+    "oasis",
+    "mirage",
+    "swamp"
+  ],
+  "promotion_passed": true,
+  "metrics": {
+    "spatial_cv_macro_f1": 0.37922576973054845,
+    "spatial_cv_accuracy": 0.4059093063675146,
+    "per_class": {
+      "desert": {
+        "precision": 0.43216137029524454,
+        "recall": 0.5691599881270407,
+        "f1": 0.49128875224186525,
+        "support": 6738
+      },
+      "oasis": {
+        "precision": 0.6498789904344819,
+        "recall": 0.4093350754936121,
+        "f1": 0.502293680131831,
+        "support": 13776
+      },
+      "mirage": {
+        "precision": 0.30755064456721914,
+        "recall": 0.2863738293101174,
+        "f1": 0.29658469945355187,
+        "support": 7581
+      },
+      "swamp": {
+        "precision": 0.17057569296375266,
+        "recall": 0.3380281690140845,
+        "f1": 0.22673594709494568,
+        "support": 3550
+      }
+    },
+    "temperature": 2.530938128110249,
+    "uncalibrated_ece": 0.10681118822807047,
+    "calibrated_ece": 0.057291000085468544,
+    "confidence_threshold": 0.32,
+    "entropy_threshold": 0.999812427902921,
+    "selective_coverage": 0.6163374940748934,
+    "selective_macro_f1": 0.3865265773027166,
+    "threshold_search_macro_f1": 0.3861695529084146,
+    "historical_macro_f1_gate": 0.292,
+    "promotion_passed": true,
+    "promotion_checks": {
+      "historical_macro_f1": true,
+      "all_classes_predicted": true,
+      "minimum_selective_coverage": true
+    },
+    "folds": [
+      {
+        "fold": 0,
+        "train_nodes": 21394,
+        "validation_nodes": 5969,
+        "test_nodes": 4282,
+        "best_epoch": 5,
+        "validation_macro_f1": 0.4544029795608638,
+        "test_macro_f1": 0.25150302624719056
+      },
+      {
+        "fold": 1,
+        "train_nodes": 18968,
+        "validation_nodes": 4087,
+        "test_nodes": 8590,
+        "best_epoch": 14,
+        "validation_macro_f1": 0.3449426719213437,
+        "test_macro_f1": 0.36673321448065066
+      },
+      {
+        "fold": 2,
+        "train_nodes": 21390,
+        "validation_nodes": 5277,
+        "test_nodes": 4978,
+        "best_epoch": 1,
+        "validation_macro_f1": 0.3074322526377321,
+        "test_macro_f1": 0.38862109913178394
+      },
+      {
+        "fold": 3,
+        "train_nodes": 18074,
+        "validation_nodes": 6222,
+        "test_nodes": 7349,
+        "best_epoch": 32,
+        "validation_macro_f1": 0.4144489424983726,
+        "test_macro_f1": 0.22279176032460715
+      },
+      {
+        "fold": 4,
+        "train_nodes": 20084,
+        "validation_nodes": 5115,
+        "test_nodes": 6446,
+        "best_epoch": 27,
+        "validation_macro_f1": 0.36913419650003787,
+        "test_macro_f1": 0.3414388600647691
+      }
+    ]
+  },
+  "training": {
+    "seed": 23,
+    "final_epochs": 14,
+    "labeled_nodes": 31645,
+    "target": "published Bengaluru ward label broadcast to road nodes",
+    "split": "five spatial ward-centroid zones; fold-local scaling; split-safe graphs",
+    "trained_at": "2026-06-20T10:57:39.608257+00:00"
+  },
+  "checkpoint_sha256": "556484454b85a5d481cc15aed50529beebb4417b4f66a28c7dccb165502c7a1b"
+}

@@ -54,7 +54,7 @@ class ArtifactAndApiTests(unittest.TestCase):
             "model" if body["model_promotion_passed"] else "proxy_fallback_model_not_promoted",
         )
 
-    def test_desert_access_improvement_transitions_to_proxy_or_unknown(self):
+    def test_promoted_model_allows_model_driven_desert_transition(self):
         graph = json.loads((self.data / "mysuru_graph.json").read_text())
         node = graph["label"].index("desert")
         response = self.client.post("/api/scenario/mysuru", json={
@@ -65,8 +65,27 @@ class ArtifactAndApiTests(unittest.TestCase):
         })
         changed = {row["id"]: row for row in response.json()["changed"]}
         self.assertIn(node, changed)
-        self.assertIn(changed[node]["after"], ("swamp", "unknown"))
-        self.assertNotIn(changed[node]["after"], ("mirage", "oasis"))
+        self.assertIn(changed[node]["after"], ("desert", "swamp", "mirage", "oasis", "unknown"))
+        self.assertEqual(response.json()["intervention_evidence"], "model")
+        self.assertEqual(set(changed[node]["after_probabilities"]), {
+            "desert", "oasis", "mirage", "swamp"
+        })
+
+    def test_notebook_hub_produces_real_full_graph_changes(self):
+        response = self.client.post("/api/scenario/mysuru", json={
+            "hub": [76.6558, 12.3041],
+            "radius_m": 2000,
+            "d_food_800": 12,
+            "d_food_1500": 25,
+            "near_floor": 0.15,
+            "dens_mult": 1.4,
+        })
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertGreater(body["affected"], 0)
+        self.assertGreater(len(body["changed"]), 0)
+        self.assertGreater(body["candidate_model_changed_count"], 0)
+        self.assertTrue(any(change["spillover"] for change in body["changed"]))
 
     def test_categorized_scenario_supports_unrestricted_candidate_transitions(self):
         graph = json.loads((self.data / "mysuru_graph.json").read_text())

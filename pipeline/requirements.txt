@@ -1,7 +1,5 @@
 # Food-environment node export + inference service.
-# torch is already present in the studio env; the deterministic service below does
-# NOT require torch/torch_geometric (the transferable checkpoint on disk is corrupted),
-# only the geo + numeric stack.
+# The notebook-04 transfer service runs a real two-layer GraphSAGE checkpoint.
 geopandas>=1.0
 shapely>=2.0
 pyproj>=3.6
@@ -10,3 +8,8 @@ numpy>=1.26
 osmnx>=2.0          # only needed to (re)export Mysuru nodes from live OSM
 fastapi>=0.110
 uvicorn>=0.29
+torch>=2.2
+torch-geometric>=2.5
+scikit-learn>=1.4
+scipy>=1.12
+folium>=0.20

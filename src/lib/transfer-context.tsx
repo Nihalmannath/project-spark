@@ -104,7 +104,7 @@ export function buildAudit(source: ModelCheckpoint, target: TargetCity | null): 
     return {
       verdict: "CAUTION",
       summary:
-        "Mysuru has a matched 25-feature OSM GraphSAGE candidate and a conservative proxy fallback. The candidate remains evaluation-only until every promotion gate passes.",
+        "Mysuru has a reproducible eight-feature notebook GraphSAGE projection with calibrated uncertainty. The deterministic proxy remains available for comparison.",
       readiness: [
         { label: "Administrative boundary", status: "pass" },
         { label: "Road graph (OSM)", status: "pass", note: "55,966 edges" },
@@ -122,7 +122,7 @@ export function buildAudit(source: ModelCheckpoint, target: TargetCity | null): 
         { label: "Population / demand data", status: "pass", note: "WorldPop 100m" },
         { label: "Affordability data", status: "fail", note: "Not available; not imputed" },
         { label: "Quality / diversity data", status: "warn", note: "OSM category proxy only" },
-        { label: "OSM GraphSAGE promotion", status: "fail", note: "Swamp F1 below 0.15" },
+        { label: "Notebook GraphSAGE reconstruction", status: "pass", note: "Macro-F1 0.379" },
       ],
       feature_compat: [
         { label: "Road intersection density", status: "pass" },

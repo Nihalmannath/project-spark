@@ -169,11 +169,11 @@ export function NodeSidePanel({ node, change, onClose }: Props) {
           <section className="mt-5 border-y border-border py-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[11px] font-medium text-foreground">OSM-only GraphSAGE</p>
+                <p className="text-[11px] font-medium text-foreground">Notebook 04 GraphSAGE</p>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">
                   {node.model_promoted
-                    ? "Primary transfer model"
-                    : "Evaluation only · promotion gate failed"}
+                    ? "Primary Mysuru projection"
+                    : "Reconstruction retained for evaluation"}
                 </p>
               </div>
               <span className="rounded-full border border-border px-2 py-1 font-mono text-[9px] text-muted-foreground">
@@ -220,8 +220,8 @@ export function NodeSidePanel({ node, change, onClose }: Props) {
               </div>
             </dl>
             <p className="mt-3 text-[10px] leading-relaxed text-muted-foreground">
-              Four-class probabilities are learned from Bengaluru ward labels. Mirage and oasis do
-              not mean Mysuru affordability was observed.
+              Probabilities are learned from Bengaluru ward labels using eight matched OSM road and
+              food features. Mirage and oasis do not mean Mysuru affordability was observed.
             </p>
           </section>
         )}

@@ -56,8 +56,8 @@ function EvidenceMap() {
             ) : (
               <>
                 {modelPromoted
-                  ? "Mysuru uses a calibrated OSM-only GraphSAGE projection. Mirage and oasis are learned classes, not observed affordability evidence."
-                  : "Mysuru uses the conservative proxy fallback because the candidate GraphSAGE model did not pass every promotion gate."}
+                  ? "Mysuru uses the reproducible notebook-04 eight-feature GraphSAGE projection. Mirage and oasis are learned classes, not observed affordability evidence."
+                  : "Mysuru uses the conservative proxy because the notebook reconstruction did not meet its reproducibility gate."}
               </>
             )}
           </p>
@@ -139,12 +139,14 @@ function EvidenceMap() {
                 className={`mt-3 border px-3 py-2 ${modelPromoted ? "border-[#7a9461] bg-[#f5f8f1]" : "border-[#d59e71] bg-[#fffaf0]"}`}
               >
                 <p className="font-medium text-foreground">
-                  {modelPromoted ? "Model promoted" : "Candidate model retained for evaluation"}
+                  {modelPromoted
+                    ? "Notebook model promoted"
+                    : "Notebook model retained for evaluation"}
                 </p>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">
                   {modelPromoted
-                    ? "All four classes are available with uncertainty abstention."
-                    : "Swamp F1 did not reach the 0.15 release requirement; proxy labels remain primary."}
+                    ? "All four projected classes are available with calibrated uncertainty abstention."
+                    : "The reconstructed model missed its historical macro-F1 or coverage gate; proxy labels remain primary."}
                 </p>
               </div>
               <dl className="mt-3 space-y-1 font-mono text-[10px]">

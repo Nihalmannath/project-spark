@@ -68,7 +68,7 @@ export const CITY_INFO: Record<string, CityInfo> = {
     zoom: 12,
     evidence: "SCENARIO",
     blurb:
-      "Matched OSM-only GraphSAGE evaluation with a conservative proxy fallback. No Mysuru ground truth or observed affordability is available.",
+      "Reproducible notebook-04 GraphSAGE projection with calibrated uncertainty. No Mysuru ground truth or observed affordability is available.",
   },
 };
 

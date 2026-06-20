@@ -32,7 +32,6 @@ function TransferScenario() {
   const [hub, setHub] = useState<[number, number] | null>(null);
   const [radius, setRadius] = useState(DEFAULTS.radius_m);
   const [dFood, setDFood] = useState(DEFAULTS.d_food_800);
-  const [outletProfile, setOutletProfile] = useState<"generic" | "healthy_diverse">("generic");
   const [pickMode, setPickMode] = useState(true);
   const [result, setResult] = useState<ScenarioResult | null>(null);
   const [running, setRunning] = useState(false);
@@ -57,10 +56,8 @@ function TransferScenario() {
         d_food_1500: dFood * 2,
         near_floor: DEFAULTS.near_floor,
         dens_mult: DEFAULTS.dens_mult,
-        outlet_categories:
-          outletProfile === "healthy_diverse" ? ["grocery", "restaurant", "cafe"] : [],
-        cuisine_categories:
-          outletProfile === "healthy_diverse" ? ["local", "vegetarian", "fresh_food"] : [],
+        outlet_categories: [],
+        cuisine_categories: [],
       });
       setResult(r);
       setPickMode(false);
@@ -77,7 +74,6 @@ function TransferScenario() {
     setSel(null);
     setPickMode(true);
     setErr(null);
-    setOutletProfile("generic");
   }
 
   const serviceDown = health.isFetched && !health.data;
@@ -89,10 +85,8 @@ function TransferScenario() {
         <div>
           <p className="smallcaps text-[10px] text-muted-foreground">
             Mysuru ·{" "}
-            {modelPromoted
-              ? "promoted OSM-only GraphSAGE"
-              : "proxy fallback · model evaluation only"}{" "}
-            · no local ground truth
+            {modelPromoted ? "promoted OSM-only GraphSAGE" : "notebook reconstruction held back"} ·
+            no local ground truth
           </p>
           <h1 className="mt-1 font-serif text-[28px] leading-tight tracking-tight text-foreground">
             What changes if we add food access here?
@@ -107,8 +101,8 @@ function TransferScenario() {
               fixed baseline feature distribution
             </Term>{" "}
             {modelPromoted
-              ? "and run the promoted model with "
-              : "using the conservative fallback. The candidate model still reports evaluation-only "}
+              ? "and rerun the calibrated notebook model with "
+              : "using the conservative fallback while reporting "}
             <Term explain="A promoted GraphSAGE model can change connected neighbours through message passing even when their own POI counts are unchanged.">
               graph-aware inference
             </Term>
@@ -187,40 +181,10 @@ function TransferScenario() {
               fmt={(v) => `+${v}`}
             />
 
-            <fieldset className="mt-4">
-              <legend className="text-[11px] text-muted-foreground">Outlet evidence</legend>
-              <label className="mt-2 flex cursor-pointer gap-2 text-[11px] text-foreground">
-                <input
-                  type="radio"
-                  name="outlet-profile"
-                  checked={outletProfile === "generic"}
-                  onChange={() => setOutletProfile("generic")}
-                  className="mt-0.5 accent-[#3d5a80]"
-                />
-                <span>
-                  <strong className="font-medium">Generic outlets</strong>
-                  <span className="block text-muted-foreground">
-                    Changes total food counts and distance; a promoted model may predict any class
-                    transition.
-                  </span>
-                </span>
-              </label>
-              <label className="mt-2 flex cursor-pointer gap-2 text-[11px] text-foreground">
-                <input
-                  type="radio"
-                  name="outlet-profile"
-                  checked={outletProfile === "healthy_diverse"}
-                  onChange={() => setOutletProfile("healthy_diverse")}
-                  className="mt-0.5 accent-[#3d5a80]"
-                />
-                <span>
-                  <strong className="font-medium">Healthy/diverse mix</strong>
-                  <span className="block text-muted-foreground">
-                    Also changes grocery, restaurant, cafe, cuisine, and tag-coverage features.
-                  </span>
-                </span>
-              </label>
-            </fieldset>
+            <p className="mt-4 text-[10px] leading-relaxed text-muted-foreground">
+              Notebook 04 changes total food counts, nearest-food distance, and intersection
+              density. It does not claim that outlet affordability or quality changed.
+            </p>
 
             <div className="mt-4 flex gap-2">
               <button
@@ -252,8 +216,8 @@ function TransferScenario() {
                 />
                 <Stat k="Graph spillover nodes" v={result.spillover.toLocaleString()} />
                 <Stat
-                  k="Evidence changed"
-                  v={result.intervention_evidence === "model" ? "GraphSAGE" : "Proxy fallback"}
+                  k="Inference method"
+                  v={result.intervention_evidence === "model" ? "Notebook GraphSAGE" : "Fallback"}
                 />
                 {!result.model_promotion_passed && (
                   <Stat
@@ -287,7 +251,7 @@ function TransferScenario() {
           <p className="text-[11px] italic text-muted-foreground">
             {modelPromoted
               ? "Model projection — no Mysuru ground truth. Mirage and oasis are learned patterns; affordability remains unavailable."
-              : "The candidate model did not pass every release gate, so public scenario transitions use the conservative proxy fallback."}
+              : "The notebook reconstruction did not meet its release gate, so the conservative proxy remains visible."}
           </p>
         </aside>
 
@@ -332,7 +296,8 @@ function TransferScenario() {
           ← Back to evidence map
         </Link>
         <span className="text-[11px] text-muted-foreground">
-          Matched 25-feature OSM schema · calibrated GraphSAGE candidate · promotion-gated release
+          Notebook 04 · eight transferable OSM features · calibrated probabilities · uncertainty
+          abstention
         </span>
       </div>
     </div>

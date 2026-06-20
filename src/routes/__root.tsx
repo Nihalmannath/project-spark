@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Bengaluru evidence is mapped at road-intersection scale; Mysuru uses a promotion-gated OSM-only GraphSAGE evaluation with a conservative proxy fallback.",
+          "Bengaluru evidence is mapped at road-intersection scale; Mysuru uses the calibrated notebook-04 GraphSAGE projection with explicit uncertainty and no local ground truth.",
       },
       { property: "og:title", content: "Food Spatial Intelligence" },
       {
