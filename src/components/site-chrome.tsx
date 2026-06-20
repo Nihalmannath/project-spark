@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 const NAV_ITEMS = [
   { to: "/", label: "Overview", exact: true },
+  { to: "/cities", label: "Cities", exact: false },
   { to: "/results", label: "Evidence Map", exact: false },
   { to: "/scenario-lab", label: "Transfer & Scenario", exact: false },
   { to: "/checkpoints", label: "Model & Validation", exact: false },
@@ -21,7 +22,7 @@ export function SiteHeader() {
               Food Spatial Intelligence
             </span>
             <span className="font-serif text-sm font-medium tracking-tight text-foreground">
-              Bengaluru evidence · Mysuru transfer projection
+              Map your city&apos;s food climate
             </span>
           </span>
         </Link>

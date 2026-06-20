@@ -1,106 +1,105 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Term } from "../components/Term";
-import { LABELS, LABEL_ORDER, type LabelKey } from "../data/labels";
+import { AnimatePresence, motion } from "motion/react";
+import { type LabelKey } from "../data/labels";
 import { labelColor } from "../data/realData";
+import { EXPO_OUT, useMotionPresets } from "../lib/motion";
 
-export const Route = createFileRoute("/")({
-  component: Overview,
-});
+export const Route = createFileRoute("/")({ component: Landing });
 
-const METRICS = [
-  ["Best accuracy", "93.9%", "high-confidence adaptive target"],
-  ["Macro-F1", "0.783", "gradient-boosting leaderboard"],
-  ["Spatial-CV macro-F1", "0.51", "leave-one-zone-out, GraphSAGE"],
-  ["Road nodes", "34,200", "Bengaluru intersections"],
-] as const;
+const ROTATING = ["Tokyo", "Lagos", "São Paulo", "London", "Jakarta", "New York"];
 
-const STEPS = [
-  ["01 · Extract", "Real road graph + OSM features", "Build the city's road-intersection graph and compute eight transferable features (food counts at 800 m / 1500 m, nearest-food distance, road structure) — OSM-only, so they transfer."],
-  ["02 · Weight", "Within-city percentiles", "Rank every feature against the city's own distribution, so “well-served relative to this city” means the same in Bengaluru and Mysuru despite sparser OSM coverage."],
-  ["03 · Transfer", "Frozen model → new city + scenario", "Apply the Bengaluru-trained model unchanged to Mysuru, then simulate a jobs hub and re-predict which intersections move out of food desert."],
-] as const;
+function Landing() {
+  const { reduce, fadeUp, stagger, spring } = useMotionPresets();
 
-function Overview() {
   return (
-    <div className="mx-auto max-w-[1400px] px-6 pt-10 pb-16">
-      <section className="grid gap-8 border-b border-border pb-10 lg:grid-cols-[1.4fr_1fr]">
-        <div>
-          <p className="smallcaps text-[10px] tracking-[0.14em] text-muted-foreground">
-            Urban food-environment graph learning · MSc thesis
-          </p>
-          <h1 className="mt-2 font-serif text-[34px] leading-[1.1] tracking-tight text-foreground">
-            Mapping food deserts at road-intersection scale — and transferring the model to a new city.
-          </h1>
-          <p className="mt-4 max-w-[760px] text-sm leading-relaxed text-[color:var(--color-ink-deep)]">
-            A <Term explain="GraphSAGE: a graph neural network that classifies each node by aggregating features from its road-connected neighbours.">GraphSAGE</Term> model
-            labels every road intersection in Bengaluru as one of four food environments, evaluated with{" "}
-            <Term explain="Leave-one-zone-out spatial cross-validation: whole city zones are held out, so the score reflects real spatial generalisation, not memorised neighbours.">leave-one-zone-out spatial CV</Term>.
-            The trained model is then <Term explain="The model weights and feature scaler are frozen — not retrained — and applied to a new city's features. This tests true transfer.">frozen and transferred</Term> to
-            Mysuru, where you can run interventions and watch the projection respond.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/results" className="smallcaps rounded-sm bg-foreground px-4 py-2.5 text-[10px] text-background hover:bg-foreground/85">
-              Open the evidence map →
+    <div className="mx-auto flex min-h-[calc(100vh-7.5rem)] max-w-[1400px] items-center px-6">
+      <motion.div variants={stagger} initial="hidden" animate="visible" className="max-w-3xl">
+        <motion.p
+          variants={fadeUp}
+          className="smallcaps text-[11px] tracking-[0.18em] text-muted-foreground"
+        >
+          Urban food-environment intelligence
+        </motion.p>
+
+        <motion.h1
+          variants={fadeUp}
+          className="mt-4 font-serif text-[40px] font-light leading-[1.08] tracking-tight text-foreground sm:text-[56px]"
+        >
+          Is your city a <EnvWord k="desert" delay={0.35} reduce={reduce} />, an{" "}
+          <EnvWord k="oasis" delay={0.5} reduce={reduce} />,
+          <br className="hidden sm:block" /> a <EnvWord k="swamp" delay={0.65} reduce={reduce} />, or a{" "}
+          <EnvWord k="mirage" delay={0.8} reduce={reduce} />?
+        </motion.h1>
+
+        <motion.p
+          variants={fadeUp}
+          className="mt-6 max-w-xl text-base leading-relaxed text-[color:var(--color-ink-deep)]"
+        >
+          Every neighbourhood has a food climate. We map it at street-intersection scale — then let you
+          test what a new market or hub would change.
+        </motion.p>
+
+        <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <motion.div whileHover={{ y: -2 }} whileTap={{ y: 0 }} transition={spring}>
+            <Link
+              to="/cities"
+              className="group inline-flex items-center gap-2 rounded-sm bg-foreground px-5 py-3 smallcaps text-[10px] text-background transition-colors hover:bg-foreground/85"
+            >
+              Test your city
+              <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
-            <Link to="/scenario-lab" className="smallcaps rounded-sm border border-foreground px-4 py-2.5 text-[10px] text-foreground hover:bg-muted/40">
-              Run a transfer scenario →
-            </Link>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 self-start border border-border bg-[color:var(--color-paper)]">
-          {METRICS.map(([label, value, sub], i) => (
-            <div key={label} className={`p-5 ${i % 2 === 0 ? "border-r" : ""} ${i < 2 ? "border-b" : ""} border-border`}>
-              <p className="smallcaps text-[9px] text-muted-foreground">{label}</p>
-              <p className="mt-1 font-serif text-2xl text-foreground">{value}</p>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Four labels */}
-      <section className="mt-10">
-        <p className="smallcaps text-[10px] text-muted-foreground">The four food environments</p>
-        <h2 className="mt-1 font-serif text-xl text-foreground">A deterministic label rule on five score dimensions</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-4">
-          {(LABEL_ORDER.filter((k) => k !== "unknown") as LabelKey[]).map((k) => (
-            <div key={k} className="overflow-hidden rounded-sm border border-border">
-              <div className="px-4 py-3" style={{ background: labelColor(k) }}>
-                <span className="font-serif text-sm font-medium italic" style={{ color: k === "swamp" ? "#fff" : "#1a1a1a" }}>
-                  {LABELS[k].name}
-                </span>
-              </div>
-              <p className="bg-[color:var(--color-paper)] px-4 py-3 text-[12px] leading-snug text-[color:var(--color-ink-deep)]">
-                {LABELS[k].longDef}
-              </p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-3 text-[11px] italic text-muted-foreground">
-          Rule: <span className="font-mono not-italic">access &lt; 40 → desert</span>;{" "}
-          <span className="font-mono not-italic">affordability &lt; 40 → mirage</span>;{" "}
-          <span className="font-mono not-italic">quality/diversity &lt; 40 → swamp</span>; all three ≥ 40 → oasis. Proxy labels, not survey ground truth.
-        </p>
-      </section>
-
-      {/* Three-verb pipeline */}
-      <section className="mt-10">
-        <p className="smallcaps text-[10px] text-muted-foreground">How the transfer works</p>
-        <div className="mt-3 grid border border-border md:grid-cols-3">
-          {STEPS.map(([num, title, body], i) => (
-            <div key={num} className={`p-6 ${i < 2 ? "border-b md:border-b-0 md:border-r" : ""} border-border`}>
-              <p className="smallcaps text-[10px] text-muted-foreground">{num}</p>
-              <h3 className="mt-2 font-serif text-base text-foreground">{title}</h3>
-              <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">{body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <p className="mt-10 text-[10px] text-muted-foreground">
-        Bengaluru is the evidence-backed build (real BBMP ward labels). Mysuru is a transfer projection with no
-        local ground truth — read relative scenario change, not absolute class.
-      </p>
+          </motion.div>
+          <RotatingHint reduce={reduce} />
+        </motion.div>
+      </motion.div>
     </div>
+  );
+}
+
+function EnvWord({ k, delay, reduce }: { k: LabelKey; delay: number; reduce: boolean | null }) {
+  return (
+    <span className="relative inline-block whitespace-nowrap italic text-foreground">
+      {k}
+      <motion.span
+        aria-hidden
+        className="absolute -bottom-0.5 left-0 h-[0.16em] w-full origin-left rounded-full"
+        style={{ background: labelColor(k) }}
+        initial={{ scaleX: reduce ? 1 : 0, opacity: reduce ? 1 : 0 }}
+        animate={{ scaleX: 1, opacity: 1 }}
+        transition={{ duration: reduce ? 0 : 0.7, ease: EXPO_OUT, delay: reduce ? 0 : delay }}
+      />
+    </span>
+  );
+}
+
+function RotatingHint({ reduce }: { reduce: boolean | null }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (reduce) return;
+    const t = setInterval(() => setI((v) => (v + 1) % ROTATING.length), 2200);
+    return () => clearInterval(t);
+  }, [reduce]);
+
+  return (
+    <span className="inline-flex items-center gap-1.5 smallcaps text-[10px] text-muted-foreground">
+      <span className="size-1.5 rounded-full" style={{ background: "#7a9461" }} />
+      Live in Bengaluru ·
+      <span className="relative inline-grid">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={ROTATING[i]}
+            initial={{ opacity: 0, y: reduce ? 0 : 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: reduce ? 0 : -6 }}
+            transition={{ duration: 0.3 }}
+            className="text-foreground"
+          >
+            {ROTATING[i]}
+          </motion.span>
+        </AnimatePresence>
+      </span>
+      coming soon
+    </span>
   );
 }
