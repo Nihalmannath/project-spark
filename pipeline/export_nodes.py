@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 
-from common import G, THESIS_TO_KEY, access_percentile
+from common import THESIS_TO_KEY, access_percentile, load_thesis_features
 
 ROOT = Path(__file__).resolve().parents[1]          # project-spark/
 DATA = ROOT.parents[0] / "DATA"                      # PROTOTYPE/DATA
@@ -33,6 +33,7 @@ VIZ_OUT = ROOT.parents[1] / "data visualisation" / "outputs"
 OUT = ROOT / "public" / "data"
 OUT.mkdir(parents=True, exist_ok=True)
 
+G = load_thesis_features()
 FEATS = G.FEATS  # 8 transferable features
 
 

@@ -11,14 +11,9 @@ smoothing. This is fully real-data-backed and transparent, not a trained-weight
 black box.
 """
 from __future__ import annotations
-import sys, json
+import sys
 from pathlib import Path
 import numpy as np
-
-# Reuse the thesis's exact road-graph + feature code.
-THESIS_VIZ = Path(__file__).resolve().parents[3] / "data visualisation"
-sys.path.insert(0, str(THESIS_VIZ))
-import gnn_features as G  # noqa: E402  build_graph, compute_features, FEATS, LABELS
 
 LABEL_KEYS = ["desert", "oasis", "mirage", "swamp", "unknown"]
 # map thesis label names -> short UI keys used by the React app (labels.ts)
@@ -30,6 +25,16 @@ THESIS_TO_KEY = {
 }
 # severity ladder used for the scenario step-improvement (worst -> best access tier)
 LADDER = ["desert", "swamp", "mirage", "oasis"]
+
+THESIS_VIZ = Path(__file__).resolve().parents[3] / "data visualisation"
+
+
+def load_thesis_features():
+    """Import the thesis feature module only when export-time graph generation needs it."""
+    if str(THESIS_VIZ) not in sys.path:
+        sys.path.insert(0, str(THESIS_VIZ))
+    import gnn_features as G  # noqa: E402
+    return G
 
 
 def access_raw(food_800, food_1500, nearest_food_km):
@@ -54,9 +59,25 @@ def access_percentile(food_800, food_1500, nearest_food_km):
     affordability / quality are held from baseline (Mysuru imputes them neutral,
     per the thesis transfer caveat).
     """
-    from scipy.stats import rankdata
     raw = access_raw(food_800, food_1500, nearest_food_km)
-    return rankdata(raw, method="average") / len(raw) * 100.0
+    return average_rank(raw) / len(raw) * 100.0
+
+
+def average_rank(values):
+    """Return 1-based average ranks with tie handling, matching scipy.rankdata(..., method="average")."""
+    values = np.asarray(values, float)
+    order = np.argsort(values, kind="mergesort")
+    sorted_values = values[order]
+    ranks = np.empty(len(values), float)
+    i = 0
+    while i < len(sorted_values):
+        j = i + 1
+        while j < len(sorted_values) and sorted_values[j] == sorted_values[i]:
+            j += 1
+        avg_rank = (i + 1 + j) / 2.0
+        ranks[order[i:j]] = avg_rank
+        i = j
+    return ranks
 
 
 def build_adjacency(n_nodes, edges):

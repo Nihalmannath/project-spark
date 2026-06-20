@@ -25,7 +25,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pyproj import Transformer
-from scipy.spatial import cKDTree
 
 from common import access_raw, LADDER
 
@@ -55,7 +54,7 @@ def load_city(city: str):
     sorted_base = np.sort(a_base)
     return {
         "n": g["n"], "edges": g["edges"], "lonlat": lonlat, "xy": xy,
-        "tree": cKDTree(xy), "feats": feats, "a_base": a_base,
+        "feats": feats, "a_base": a_base,
         "sorted_base": sorted_base, "label": list(g["label"]),
         "adj": _adjacency(g["n"], g["edges"]),
     }
@@ -75,6 +74,12 @@ def _ecdf_pct(sorted_base, values):
 def _tier(pct):
     # documented access rule: <40 desert, <55 mirage(access-limited), else oasis
     return np.where(pct < 40, "desert", np.where(pct < 55, "mirage", "oasis"))
+
+
+def _radius_query(xy, center_xy, radius_m):
+    deltas = xy - center_xy
+    within = np.sum(deltas * deltas, axis=1) <= radius_m * radius_m
+    return np.flatnonzero(within)
 
 
 def _ladder_max(a, b):
@@ -111,7 +116,7 @@ def meta(city: str):
 def scenario(city: str, req: ScenarioReq):
     c = load_city(city)
     hub_xy = np.array(_T.transform(req.hub[0], req.hub[1]))
-    idx = np.array(c["tree"].query_ball_point(hub_xy, req.radius_m), dtype=int)
+    idx = _radius_query(c["xy"], hub_xy, req.radius_m)
     base_label = np.array(c["label"], dtype=object)
 
     if len(idx) == 0:
