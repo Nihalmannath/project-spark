@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { CITIES, evidenceTone } from "../data/platform";
 import { EvidenceBadge } from "../components/EvidenceBadge";
@@ -11,6 +11,7 @@ export const Route = createFileRoute("/locations")({
 
 function Locations() {
   const { city, setCityId } = useCity();
+  const scenarioCity = city.id === "bengaluru" || city.id === "mysuru" ? city.id : null;
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "runnable" | "roadmap">("all");
   const visibleCities = useMemo(() => {
@@ -66,6 +67,29 @@ function Locations() {
           />
         </label>
       </div>
+      <section className="mt-4 flex flex-wrap items-center justify-between gap-3 border-y border-border py-3">
+        <div>
+          <p className="text-[11px] font-medium text-foreground">Selected: {city.display_name}</p>
+          <p className="mt-0.5 text-[10px] text-muted-foreground">
+            {scenarioCity
+              ? "A road-node scenario is available for this city."
+              : "This city is selectable for roadmap and readiness review; predictions are withheld."}
+          </p>
+        </div>
+        {scenarioCity ? (
+          <Link
+            to="/scenario-lab"
+            search={{ city: scenarioCity }}
+            className="rounded-sm bg-foreground px-4 py-2.5 smallcaps text-[10px] text-background hover:bg-foreground/85"
+          >
+            Open {city.display_name} scenario →
+          </Link>
+        ) : (
+          <span className="rounded-full border border-border px-3 py-1.5 font-mono text-[9px] uppercase tracking-wide text-muted-foreground">
+            Roadmap only
+          </span>
+        )}
+      </section>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         {visibleCities.map((c) => {
           const tone = evidenceTone(c.evidence_state);

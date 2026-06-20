@@ -9,6 +9,9 @@ import { CITY_INFO, labelColor, type NodeProps, type ScenarioResult } from "../d
 import { LABELS, type LabelKey } from "../data/labels";
 
 export const Route = createFileRoute("/scenario-lab")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    city: search.city === "bengaluru" ? "bengaluru" : "mysuru",
+  }),
   head: () => ({ meta: [{ title: "Transfer & Scenario — Food Spatial Intelligence" }] }),
   component: TransferScenario,
 });
@@ -26,7 +29,8 @@ const DEFAULTS: Required<Omit<ScenarioParams, "hub">> = {
 };
 
 function TransferScenario() {
-  const [city, setCity] = useState<ScenarioCity>("mysuru");
+  const { city } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const info = CITY_INFO[city];
   const meta = useQuery({ queryKey: ["meta", city], queryFn: () => fetchMeta(city) });
   const health = useQuery({ queryKey: ["health"], queryFn: inferenceHealthy, staleTime: 10_000 });
@@ -80,8 +84,8 @@ function TransferScenario() {
 
   function selectCity(nextCity: ScenarioCity) {
     if (nextCity === city) return;
-    setCity(nextCity);
     reset();
+    void navigate({ search: { city: nextCity }, replace: true });
   }
 
   const serviceDown = health.isFetched && !health.data;
