@@ -64,8 +64,11 @@ def load_city(city):
         "tree": cKDTree(xy), "raw": raw,
         "sorted_raw": [np.sort(raw[:, column]) for column in range(raw.shape[1])],
         "label": np.asarray(graph["label"], dtype=object),
+        "scenario_label": np.asarray(graph.get("model_label", graph["label"]), dtype=object),
         "probabilities": graph["model_probabilities"],
         "affordability": graph.get("affordability", [None] * graph["n"]),
+        "quality": graph.get("quality", [None] * graph["n"]),
+        "city": city,
     }
 
 
@@ -80,8 +83,12 @@ class ScenarioReq(BaseModel):
     cuisine_categories: list[str] = Field(default_factory=list)
 
 
-def _model_flags(label, reasons):
-    flags = ["model_projection", "affordability_unavailable"]
+def _model_flags(city, label, reasons):
+    flags = ["model_projection"]
+    if city == "mysuru":
+        flags.append("affordability_unavailable")
+    else:
+        flags.append("trained_on_bengaluru_ward_targets")
     if label in ("mirage", "oasis"):
         flags.append("affordability_inferred_not_observed")
     if label == "swamp":
@@ -160,23 +167,23 @@ def scenario(city, request: ScenarioReq):
 
     checkpoint, metadata, labels, probabilities, confidence, entropy, ood, accepted, reasons = _predict(data, raw)
     affected_set = set(map(int, affected))
-    changed_indexes = np.flatnonzero(labels != data["label"])
+    changed_indexes = np.flatnonzero(labels != data["scenario_label"])
     changes = []
     for node in changed_indexes:
         node = int(node)
         after = str(labels[node])
         changes.append({
             "id": node,
-            "before": str(data["label"][node]),
+            "before": str(data["scenario_label"][node]),
             "after": after,
             "spillover": node not in affected_set,
             "access_pct": round(float(fixed_percentile_rows(
                 data["sorted_raw"], raw[node:node + 1]
             )[0, indexes["food_800m"]]), 1),
-            "affordability": None,
-            "quality": None,
+            "affordability": data["affordability"][node],
+            "quality": data["quality"][node],
             "evidence_level": "model" if accepted[node] else "unknown",
-            "risk_flags": _model_flags(after, reasons[node]),
+            "risk_flags": _model_flags(data["city"], after, reasons[node]),
             "before_probabilities": data["probabilities"][node],
             "after_probabilities": {
                 key: round(float(probabilities[node, class_index]), 6)

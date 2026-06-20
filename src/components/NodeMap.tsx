@@ -5,22 +5,6 @@ import { labelColor, type NodeProps, type ScenarioChange } from "../data/realDat
 mapboxgl.accessToken =
   "pk.eyJ1IjoibmloYWxtYW5uYXQiLCJhIjoiY21xaTllOGxjMDNmYTJzc2I4YmN6YjhoNyJ9.vrJ2OuIEe-7UZMcPnn36CA";
 
-// label -> color expression used by the circle paint
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const COLOR_EXPR: any = [
-  "match",
-  ["get", "label"],
-  "desert",
-  labelColor("desert"),
-  "swamp",
-  labelColor("swamp"),
-  "mirage",
-  labelColor("mirage"),
-  "oasis",
-  labelColor("oasis"),
-  labelColor("unknown"),
-];
-
 function ringPolygon(center: [number, number], radiusM: number, steps = 72) {
   const [lon, lat] = center;
   const coords: [number, number][] = [];
@@ -37,7 +21,7 @@ function ringPolygon(center: [number, number], radiusM: number, steps = 72) {
   };
 }
 
-function hydrateNode(properties: NodeProps): NodeProps {
+function hydrateNode(properties: NodeProps, labelProperty: "label" | "model_label"): NodeProps {
   const rawFlags = properties.risk_flags as unknown;
   if (typeof rawFlags === "string") {
     try {
@@ -56,6 +40,11 @@ function hydrateNode(properties: NodeProps): NodeProps {
       properties.model_probabilities = null;
     }
   }
+  if (labelProperty === "model_label" && properties.model_label) {
+    properties.label = properties.model_label;
+    properties.evidence_level = properties.model_label === "unknown" ? "unknown" : "model";
+    properties.confidence = properties.model_confidence ?? properties.confidence;
+  }
   return properties;
 }
 
@@ -73,6 +62,8 @@ interface Props {
   onSelect?: (props: NodeProps) => void;
   selectedId?: number | null;
   caption?: string;
+  /** Scenario maps can use the model baseline while evidence maps retain observed labels. */
+  labelProperty?: "label" | "model_label";
 }
 
 export function NodeMap({
@@ -88,6 +79,7 @@ export function NodeMap({
   onSelect,
   selectedId,
   caption,
+  labelProperty = "label",
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -135,6 +127,20 @@ export function NodeMap({
         },
       });
 
+      const colorExpression = [
+        "match",
+        ["get", labelProperty],
+        "desert",
+        labelColor("desert"),
+        "swamp",
+        labelColor("swamp"),
+        "mirage",
+        labelColor("mirage"),
+        "oasis",
+        labelColor("oasis"),
+        labelColor("unknown"),
+      ];
+
       // nodes
       map.addLayer({
         id: "node-pt",
@@ -142,7 +148,7 @@ export function NodeMap({
         source: "nodes",
         paint: {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 1.6, 12, 2.8, 15, 5.5],
-          "circle-color": ["coalesce", ["feature-state", "afterColor"], COLOR_EXPR],
+          "circle-color": ["coalesce", ["feature-state", "afterColor"], colorExpression],
           "circle-opacity": [
             "case",
             ["==", ["feature-state", "dim"], true],
@@ -195,7 +201,7 @@ export function NodeMap({
       map.on("click", "node-pt", (e) => {
         const f = e.features?.[0] as unknown as { properties?: NodeProps } | undefined;
         const p = f?.properties;
-        if (p && cbRef.current.onSelect) cbRef.current.onSelect(hydrateNode(p));
+        if (p && cbRef.current.onSelect) cbRef.current.onSelect(hydrateNode(p, labelProperty));
       });
       map.on("click", (e) => {
         if (!cbRef.current.pickHub || !cbRef.current.onPickHub) return;
@@ -215,7 +221,7 @@ export function NodeMap({
       readyRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [geojsonUrl]);
+  }, [geojsonUrl, labelProperty]);
 
   // cursor reflects pick mode
   useEffect(() => {

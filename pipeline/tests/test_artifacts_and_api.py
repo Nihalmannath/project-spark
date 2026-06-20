@@ -87,6 +87,36 @@ class ArtifactAndApiTests(unittest.TestCase):
         self.assertGreater(body["candidate_model_changed_count"], 0)
         self.assertTrue(any(change["spillover"] for change in body["changed"]))
 
+    def test_bengaluru_scenario_uses_model_baseline(self):
+        graph = json.loads((self.data / "bengaluru_graph.json").read_text())
+        node = graph["model_label"].index("desert")
+        response = self.client.post("/api/scenario/bengaluru", json={
+            "hub": graph["lonlat"][node],
+            "radius_m": 1000,
+            "d_food_800": 12,
+            "d_food_1500": 25,
+            "dens_mult": 1.4,
+        })
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["intervention_evidence"], "model")
+        self.assertGreater(len(body["changed"]), 0)
+        for change in body["changed"]:
+            self.assertEqual(change["before"], graph["model_label"][change["id"]])
+
+    def test_bengaluru_noop_scenario_has_no_changes(self):
+        graph = json.loads((self.data / "bengaluru_graph.json").read_text())
+        response = self.client.post("/api/scenario/bengaluru", json={
+            "hub": graph["lonlat"][0],
+            "radius_m": 1000,
+            "d_food_800": 0,
+            "d_food_1500": 0,
+            "near_floor": 999,
+            "dens_mult": 1,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["changed"], [])
+
     def test_categorized_scenario_supports_unrestricted_candidate_transitions(self):
         graph = json.loads((self.data / "mysuru_graph.json").read_text())
         node = graph["label"].index("swamp")

@@ -13,7 +13,8 @@ export const Route = createFileRoute("/scenario-lab")({
   component: TransferScenario,
 });
 
-const CITY = "mysuru";
+const SCENARIO_CITIES = ["bengaluru", "mysuru"] as const;
+type ScenarioCity = (typeof SCENARIO_CITIES)[number];
 const DEFAULTS: Required<Omit<ScenarioParams, "hub">> = {
   radius_m: 2000,
   d_food_800: 12,
@@ -25,8 +26,9 @@ const DEFAULTS: Required<Omit<ScenarioParams, "hub">> = {
 };
 
 function TransferScenario() {
-  const info = CITY_INFO[CITY];
-  const meta = useQuery({ queryKey: ["meta", CITY], queryFn: () => fetchMeta(CITY) });
+  const [city, setCity] = useState<ScenarioCity>("mysuru");
+  const info = CITY_INFO[city];
+  const meta = useQuery({ queryKey: ["meta", city], queryFn: () => fetchMeta(city) });
   const health = useQuery({ queryKey: ["health"], queryFn: inferenceHealthy, staleTime: 10_000 });
 
   const [hub, setHub] = useState<[number, number] | null>(null);
@@ -49,7 +51,7 @@ function TransferScenario() {
     setRunning(true);
     setErr(null);
     try {
-      const r = await runScenario(CITY, {
+      const r = await runScenario(city, {
         hub,
         radius_m: radius,
         d_food_800: dFood,
@@ -76,6 +78,12 @@ function TransferScenario() {
     setErr(null);
   }
 
+  function selectCity(nextCity: ScenarioCity) {
+    if (nextCity === city) return;
+    setCity(nextCity);
+    reset();
+  }
+
   const serviceDown = health.isFetched && !health.data;
   const modelPromoted = meta.data?.model.status === "promoted";
 
@@ -84,30 +92,51 @@ function TransferScenario() {
       <header className="mb-4 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
         <div>
           <p className="smallcaps text-[10px] text-muted-foreground">
-            Mysuru ·{" "}
-            {modelPromoted ? "promoted OSM-only GraphSAGE" : "notebook reconstruction held back"} ·
-            no local ground truth
+            {info.name} · {city === "bengaluru" ? "local model scenario" : "transfer projection"} ·{" "}
+            {city === "bengaluru" ? "ward-target evidence" : "no local ground truth"}
           </p>
           <h1 className="mt-1 font-serif text-[28px] leading-tight tracking-tight text-foreground">
             What changes if we add food access here?
           </h1>
           <p className="mt-2 max-w-[820px] text-sm text-[color:var(--color-ink-deep)]">
-            Place a jobs hub on Mysuru's {meta.data?.n_nodes?.toLocaleString() ?? ""} road{" "}
-            <Term explain="Road-intersection nodes from OpenStreetMap. Food counts and nearest-outlet distance are calculated on the real Mysuru road network; this is a projection, not local validation.">
+            Place a jobs hub on {info.name}'s {meta.data?.n_nodes?.toLocaleString() ?? ""} road{" "}
+            <Term
+              explain={`Road-intersection nodes from OpenStreetMap. Food counts and nearest-outlet distance are calculated on the real ${info.name} road network.`}
+            >
               nodes
             </Term>
             , then rebuild affected OSM features against the{" "}
-            <Term explain="Each changed feature is scored against Mysuru's fixed original empirical distribution, avoiding a whole-city re-rank after a local intervention.">
+            <Term
+              explain={`Each changed feature is scored against ${info.name}'s fixed original empirical distribution, avoiding a whole-city re-rank after a local intervention.`}
+            >
               fixed baseline feature distribution
             </Term>{" "}
-            {modelPromoted
-              ? "and rerun the calibrated notebook model with "
-              : "using the conservative fallback while reporting "}
+            and rerun the calibrated model with{" "}
             <Term explain="A promoted GraphSAGE model can change connected neighbours through message passing even when their own POI counts are unchanged.">
               graph-aware inference
             </Term>
             .
           </p>
+        </div>
+        <div
+          className="flex rounded-sm border border-border bg-card p-1"
+          aria-label="Scenario city"
+        >
+          {SCENARIO_CITIES.map((candidate) => (
+            <button
+              key={candidate}
+              type="button"
+              onClick={() => selectCity(candidate)}
+              aria-pressed={city === candidate}
+              className={`rounded-sm px-3 py-2 text-[11px] transition-colors ${
+                city === candidate
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {CITY_INFO[candidate].name}
+            </button>
+          ))}
         </div>
       </header>
 
@@ -249,16 +278,18 @@ function TransferScenario() {
           )}
 
           <p className="text-[11px] italic text-muted-foreground">
-            {modelPromoted
-              ? "Model projection — no Mysuru ground truth. Mirage and oasis are learned patterns; affordability remains unavailable."
-              : "The notebook reconstruction did not meet its release gate, so the conservative proxy remains visible."}
+            {city === "bengaluru"
+              ? "Bengaluru scenario labels are model projections trained on published ward targets; the observed evidence map remains unchanged."
+              : modelPromoted
+                ? "Model projection — no Mysuru ground truth. Mirage and oasis are learned patterns; affordability remains unavailable."
+                : "The notebook reconstruction did not meet its release gate, so the conservative proxy remains visible."}
           </p>
         </aside>
 
         {/* Map */}
         <div className="h-[640px]">
           <NodeMap
-            geojsonUrl={`/data/${CITY}_nodes.geojson`}
+            geojsonUrl={`/data/${city}_nodes.geojson`}
             center={info.center}
             zoom={info.zoom}
             hub={hub}
@@ -273,8 +304,9 @@ function TransferScenario() {
             caption={
               result
                 ? `After scenario · ${result.intervention_evidence === "model" ? "GraphSAGE" : "proxy fallback"}`
-                : `Mysuru baseline · ${modelPromoted ? "model projection" : "proxy fallback"}`
+                : `${info.name} · model scenario baseline`
             }
+            labelProperty="model_label"
           />
         </div>
 
@@ -296,8 +328,8 @@ function TransferScenario() {
           ← Back to evidence map
         </Link>
         <span className="text-[11px] text-muted-foreground">
-          Notebook 04 · eight transferable OSM features · calibrated probabilities · uncertainty
-          abstention
+          {city === "bengaluru" ? "Bengaluru local scenario" : "Notebook 04 transfer"} · eight
+          transferable OSM features · calibrated probabilities · uncertainty abstention
         </span>
       </div>
     </div>

@@ -8,30 +8,164 @@ export interface WorldCity {
   name: string;
   country: string;
   coords: [number, number]; // [lon, lat]
-  status: "live" | "coming-soon";
+  status: "available" | "scenario" | "coming-soon";
   /** When live, the id used by the platform CITIES registry + the profile route. */
   liveCityId?: string;
 }
 
 export const WORLD_CITIES: WorldCity[] = [
-  { id: "bengaluru", name: "Bengaluru", country: "India", coords: [77.5946, 12.9716], status: "live", liveCityId: "bengaluru" },
-  { id: "mumbai", name: "Mumbai", country: "India", coords: [72.8777, 19.076], status: "coming-soon" },
-  { id: "london", name: "London", country: "United Kingdom", coords: [-0.1276, 51.5074], status: "coming-soon" },
-  { id: "new-york", name: "New York", country: "United States", coords: [-74.006, 40.7128], status: "coming-soon" },
-  { id: "tokyo", name: "Tokyo", country: "Japan", coords: [139.6917, 35.6895], status: "coming-soon" },
-  { id: "singapore", name: "Singapore", country: "Singapore", coords: [103.8198, 1.3521], status: "coming-soon" },
-  { id: "paris", name: "Paris", country: "France", coords: [2.3522, 48.8566], status: "coming-soon" },
-  { id: "sao-paulo", name: "São Paulo", country: "Brazil", coords: [-46.6333, -23.5505], status: "coming-soon" },
-  { id: "lagos", name: "Lagos", country: "Nigeria", coords: [3.3792, 6.5244], status: "coming-soon" },
-  { id: "jakarta", name: "Jakarta", country: "Indonesia", coords: [106.8456, -6.2088], status: "coming-soon" },
-  { id: "mexico-city", name: "Mexico City", country: "Mexico", coords: [-99.1332, 19.4326], status: "coming-soon" },
-  { id: "cairo", name: "Cairo", country: "Egypt", coords: [31.2357, 30.0444], status: "coming-soon" },
-  { id: "shanghai", name: "Shanghai", country: "China", coords: [121.4737, 31.2304], status: "coming-soon" },
-  { id: "dubai", name: "Dubai", country: "United Arab Emirates", coords: [55.2708, 25.2048], status: "coming-soon" },
-  { id: "sydney", name: "Sydney", country: "Australia", coords: [151.2093, -33.8688], status: "coming-soon" },
+  {
+    id: "bengaluru",
+    name: "Bengaluru",
+    country: "India",
+    coords: [77.5946, 12.9716],
+    status: "available",
+    liveCityId: "bengaluru",
+  },
+  {
+    id: "mysuru",
+    name: "Mysuru",
+    country: "India",
+    coords: [76.6394, 12.2958],
+    status: "scenario",
+    liveCityId: "mysuru",
+  },
+  {
+    id: "mumbai",
+    name: "Mumbai",
+    country: "India",
+    coords: [72.8777, 19.076],
+    status: "coming-soon",
+  },
+  {
+    id: "hyderabad",
+    name: "Hyderabad",
+    country: "India",
+    coords: [78.4867, 17.385],
+    status: "coming-soon",
+  },
+  {
+    id: "chennai",
+    name: "Chennai",
+    country: "India",
+    coords: [80.2707, 13.0827],
+    status: "coming-soon",
+  },
+  {
+    id: "kochi",
+    name: "Kochi",
+    country: "India",
+    coords: [76.2673, 9.9312],
+    status: "coming-soon",
+  },
+  {
+    id: "delhi",
+    name: "Delhi",
+    country: "India",
+    coords: [77.1025, 28.7041],
+    status: "coming-soon",
+  },
+  {
+    id: "ahmedabad",
+    name: "Ahmedabad",
+    country: "India",
+    coords: [72.5714, 23.0225],
+    status: "coming-soon",
+  },
+  {
+    id: "london",
+    name: "London",
+    country: "United Kingdom",
+    coords: [-0.1276, 51.5074],
+    status: "coming-soon",
+  },
+  {
+    id: "new-york",
+    name: "New York",
+    country: "United States",
+    coords: [-74.006, 40.7128],
+    status: "coming-soon",
+  },
+  {
+    id: "tokyo",
+    name: "Tokyo",
+    country: "Japan",
+    coords: [139.6917, 35.6895],
+    status: "coming-soon",
+  },
+  {
+    id: "singapore",
+    name: "Singapore",
+    country: "Singapore",
+    coords: [103.8198, 1.3521],
+    status: "coming-soon",
+  },
+  {
+    id: "paris",
+    name: "Paris",
+    country: "France",
+    coords: [2.3522, 48.8566],
+    status: "coming-soon",
+  },
+  {
+    id: "sao-paulo",
+    name: "São Paulo",
+    country: "Brazil",
+    coords: [-46.6333, -23.5505],
+    status: "coming-soon",
+  },
+  {
+    id: "lagos",
+    name: "Lagos",
+    country: "Nigeria",
+    coords: [3.3792, 6.5244],
+    status: "coming-soon",
+  },
+  {
+    id: "jakarta",
+    name: "Jakarta",
+    country: "Indonesia",
+    coords: [106.8456, -6.2088],
+    status: "coming-soon",
+  },
+  {
+    id: "mexico-city",
+    name: "Mexico City",
+    country: "Mexico",
+    coords: [-99.1332, 19.4326],
+    status: "coming-soon",
+  },
+  {
+    id: "cairo",
+    name: "Cairo",
+    country: "Egypt",
+    coords: [31.2357, 30.0444],
+    status: "coming-soon",
+  },
+  {
+    id: "shanghai",
+    name: "Shanghai",
+    country: "China",
+    coords: [121.4737, 31.2304],
+    status: "coming-soon",
+  },
+  {
+    id: "dubai",
+    name: "Dubai",
+    country: "United Arab Emirates",
+    coords: [55.2708, 25.2048],
+    status: "coming-soon",
+  },
+  {
+    id: "sydney",
+    name: "Sydney",
+    country: "Australia",
+    coords: [151.2093, -33.8688],
+    status: "coming-soon",
+  },
 ];
 
-export const LIVE_WORLD_CITY = WORLD_CITIES.find((c) => c.status === "live")!;
+export const LIVE_WORLD_CITY = WORLD_CITIES.find((c) => c.status === "available")!;
 
 export function findWorldCity(id: string): WorldCity | undefined {
   return WORLD_CITIES.find((c) => c.id === id || c.liveCityId === id);
