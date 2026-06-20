@@ -1,0 +1,13 @@
+# Food-environment node export + inference service.
+# torch is already present in the studio env; the deterministic service below does
+# NOT require torch/torch_geometric (the transferable checkpoint on disk is corrupted),
+# only the geo + numeric stack.
+geopandas>=1.0
+shapely>=2.0
+pyproj>=3.6
+scipy>=1.11
+pandas>=2.0
+numpy>=1.26
+osmnx>=2.0          # only needed to (re)export Mysuru nodes from live OSM
+fastapi>=0.110
+uvicorn>=0.29

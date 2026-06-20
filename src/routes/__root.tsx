@@ -80,17 +80,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Food Access Planning Tool" },
+      { title: "Food Spatial Intelligence — Urban Food-Environment Graph Learning" },
       {
         name: "description",
         content:
-          "Explore food access patterns in Indian cities and model the impact of policy interventions.",
+          "A GraphSAGE model labels Bengaluru food environments at road-intersection scale, then transfers to Mysuru with an interactive jobs-hub scenario.",
       },
-      { property: "og:title", content: "Food Access Planning Tool" },
+      { property: "og:title", content: "Food Spatial Intelligence" },
       {
         property: "og:description",
         content:
-          "Explore food access patterns in Indian cities and model the impact of policy interventions.",
+          "Road-intersection food-environment mapping with leave-one-zone-out spatial CV and an interactive cross-city transfer scenario.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

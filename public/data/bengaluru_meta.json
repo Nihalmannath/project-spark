@@ -1,0 +1,27 @@
+{
+  "city": "bengaluru",
+  "n_nodes": 34200,
+  "n_edges": 61908,
+  "center": [
+    77.58747729561404,
+    12.977113816374269
+  ],
+  "label_counts": {
+    "oasis": 13776,
+    "mirage": 7581,
+    "swamp": 3550,
+    "desert": 6738,
+    "unknown": 2555
+  },
+  "feats": [
+    "food_800m",
+    "food_1500m",
+    "nearest_food_km",
+    "road_degree",
+    "road_rank_mean",
+    "road_rank_max",
+    "inter_density_1km",
+    "major_road_dist_km"
+  ],
+  "source": "Real BBMP road graph + OSM food points; baseline = published ward labels (nb01/03)."
+}

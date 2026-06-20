@@ -1,0 +1,25 @@
+{
+  "city": "mysuru",
+  "n_nodes": 19116,
+  "n_edges": 55966,
+  "center": [
+    76.64812062931576,
+    12.312092268780079
+  ],
+  "label_counts": {
+    "oasis": 8603,
+    "mirage": 2868,
+    "desert": 7645
+  },
+  "feats": [
+    "food_800m",
+    "food_1500m",
+    "nearest_food_km",
+    "road_degree",
+    "road_rank_mean",
+    "road_rank_max",
+    "inter_density_1km",
+    "major_road_dist_km"
+  ],
+  "source": "Real Mysuru OSM road graph + OSM food points; baseline = documented access rule (projection, no local labels)."
+}
