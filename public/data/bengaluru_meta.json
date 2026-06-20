@@ -64,34 +64,17 @@
     "minimum_nearby_proxy_pois": 5
   },
   "model": {
-    "model_version": "osm-graphsage-mysuru-v1.0.0",
-    "schema_version": "osm-road-food-v1.0.0",
+    "model_version": "notebook04-graphsage-mysuru-v2.0.0",
+    "schema_version": "notebook-osm-road-food-v2.0.0",
     "feature_names": [
+      "food_800m",
+      "food_1500m",
+      "nearest_food_km",
       "road_degree",
       "road_rank_mean",
       "road_rank_max",
       "inter_density_1km",
-      "major_road_dist_km",
-      "food_800m",
-      "food_1500m",
-      "nearest_food_km",
-      "grocery_800m",
-      "restaurant_800m",
-      "fast_food_800m",
-      "cafe_800m",
-      "grocery_1500m",
-      "restaurant_1500m",
-      "fast_food_1500m",
-      "cafe_1500m",
-      "nearest_grocery_km",
-      "nearest_restaurant_km",
-      "nearest_fast_food_km",
-      "nearest_cafe_km",
-      "grocery_share_1500m",
-      "fast_food_share_1500m",
-      "category_entropy_1500m",
-      "cuisine_diversity_1500m",
-      "osm_detail_tag_coverage_1500m"
+      "major_road_dist_km"
     ],
     "class_keys": [
       "desert",
@@ -99,118 +82,115 @@
       "mirage",
       "swamp"
     ],
-    "checkpoint_sha256": "35bf5c80802017c0471d85e259fae8c8ce645c39da82821b3edb8ad56c846704",
-    "promotion_passed": false,
+    "promotion_passed": true,
     "metrics": {
-      "spatial_cv_macro_f1": 0.3527923385757521,
-      "spatial_cv_accuracy": 0.3909306367514615,
+      "spatial_cv_macro_f1": 0.37922576973054845,
+      "spatial_cv_accuracy": 0.4059093063675146,
       "per_class": {
         "desert": {
-          "precision": 0.40528813559322036,
-          "recall": 0.44360344315820716,
-          "f1": 0.423581095443917,
+          "precision": 0.43216137029524454,
+          "recall": 0.5691599881270407,
+          "f1": 0.49128875224186525,
           "support": 6738
         },
         "oasis": {
-          "precision": 0.5926664009565564,
-          "recall": 0.43176538908246226,
-          "f1": 0.4995800436754578,
+          "precision": 0.6498789904344819,
+          "recall": 0.4093350754936121,
+          "f1": 0.502293680131831,
           "support": 13776
         },
         "mirage": {
-          "precision": 0.364662136171304,
-          "recall": 0.37514839730906213,
-          "f1": 0.3698309492847854,
+          "precision": 0.30755064456721914,
+          "recall": 0.2863738293101174,
+          "f1": 0.29658469945355187,
           "support": 7581
         },
         "swamp": {
-          "precision": 0.09168609168609168,
-          "recall": 0.16619718309859155,
-          "f1": 0.11817726589884829,
+          "precision": 0.17057569296375266,
+          "recall": 0.3380281690140845,
+          "f1": 0.22673594709494568,
           "support": 3550
         }
       },
-      "temperature": 4.999994150111906,
-      "uncalibrated_ece": 0.19306225627257825,
-      "calibrated_ece": 0.0773949528880117,
-      "confidence_threshold": 0.26,
-      "entropy_threshold": 0.9998145432716619,
-      "entropy_quantile": 0.995,
-      "selective_coverage": 0.9751303523463423,
-      "selective_macro_f1": 0.3541750789390529,
-      "threshold_search_macro_f1": 0.35381585010989286,
+      "temperature": 2.530938128110249,
+      "uncalibrated_ece": 0.10681118822807047,
+      "calibrated_ece": 0.057291000085468544,
+      "confidence_threshold": 0.32,
+      "entropy_threshold": 0.999812427902921,
+      "selective_coverage": 0.6163374940748934,
+      "selective_macro_f1": 0.3865265773027166,
+      "threshold_search_macro_f1": 0.3861695529084146,
+      "historical_macro_f1_gate": 0.292,
+      "promotion_passed": true,
+      "promotion_checks": {
+        "historical_macro_f1": true,
+        "all_classes_predicted": true,
+        "minimum_selective_coverage": true
+      },
       "folds": [
         {
           "fold": 0,
-          "train_nodes": 21004,
-          "validation_nodes": 4195,
-          "test_nodes": 6446,
-          "best_epoch": 8,
-          "validation_macro_f1": 0.5224290260093439,
-          "test_macro_f1": 0.29944504490459595
+          "train_nodes": 21394,
+          "validation_nodes": 5969,
+          "test_nodes": 4282,
+          "best_epoch": 5,
+          "validation_macro_f1": 0.4544029795608638,
+          "test_macro_f1": 0.25150302624719056
         },
         {
           "fold": 1,
-          "train_nodes": 18987,
-          "validation_nodes": 5209,
-          "test_nodes": 7449,
-          "best_epoch": 45,
-          "validation_macro_f1": 0.36355820943037853,
-          "test_macro_f1": 0.2344713539356706
+          "train_nodes": 18968,
+          "validation_nodes": 4087,
+          "test_nodes": 8590,
+          "best_epoch": 14,
+          "validation_macro_f1": 0.3449426719213437,
+          "test_macro_f1": 0.36673321448065066
         },
         {
           "fold": 2,
           "train_nodes": 21390,
           "validation_nodes": 5277,
           "test_nodes": 4978,
-          "best_epoch": 3,
-          "validation_macro_f1": 0.30117923859738643,
-          "test_macro_f1": 0.46512302290915114
+          "best_epoch": 1,
+          "validation_macro_f1": 0.3074322526377321,
+          "test_macro_f1": 0.38862109913178394
         },
         {
           "fold": 3,
-          "train_nodes": 18832,
-          "validation_nodes": 4323,
-          "test_nodes": 8490,
-          "best_epoch": 31,
-          "validation_macro_f1": 0.45251530088172365,
-          "test_macro_f1": 0.34418574404988656
+          "train_nodes": 18074,
+          "validation_nodes": 6222,
+          "test_nodes": 7349,
+          "best_epoch": 32,
+          "validation_macro_f1": 0.4144489424983726,
+          "test_macro_f1": 0.22279176032460715
         },
         {
           "fold": 4,
-          "train_nodes": 20847,
-          "validation_nodes": 6516,
-          "test_nodes": 4282,
-          "best_epoch": 6,
-          "validation_macro_f1": 0.35575425754092393,
-          "test_macro_f1": 0.3301517491800062
+          "train_nodes": 20084,
+          "validation_nodes": 5115,
+          "test_nodes": 6446,
+          "best_epoch": 27,
+          "validation_macro_f1": 0.36913419650003787,
+          "test_macro_f1": 0.3414388600647691
         }
-      ],
-      "promotion_passed": false,
-      "promotion_checks": {
-        "macro_f1": true,
-        "all_class_f1": false,
-        "calibration": true,
-        "coverage": true
-      },
-      "promotion_thresholds": {
-        "minimum_macro_f1": 0.312,
-        "minimum_class_f1": 0.15,
-        "maximum_ece": 0.15,
-        "minimum_selective_coverage": 0.6
-      }
+      ]
     },
     "training": {
-      "seed": 17,
-      "swamp_class_weight_multiplier": 1.0,
-      "final_epochs": 8,
+      "seed": 23,
+      "final_epochs": 14,
       "labeled_nodes": 31645,
       "target": "published Bengaluru ward label broadcast to road nodes",
-      "split": "five spatial ward-centroid zones; split-safe induced graphs"
+      "split": "five spatial ward-centroid zones; fold-local scaling; split-safe graphs",
+      "trained_at": "2026-06-20T10:51:33.360257+00:00"
     },
-    "status": "evaluation_only",
-    "target_city_ood_rate": 0.009649122807017544,
-    "target_city_abstention_rate": 0.012543859649122807
+    "checkpoint_sha256": "cd17fa75b81dfd104f22c6d9ed4eb277515b580c85316d3de18a85b8ec8139bf",
+    "status": "promoted",
+    "target_city_ood_rate": 0.009707602339181286,
+    "target_city_abstention_rate": 0.3104093567251462,
+    "source_notebooks": [
+      "03_graphsage_road_nodes.ipynb",
+      "04_transfer_mysore_scenario.ipynb"
+    ]
   },
   "provenance": {
     "pipeline": "pipeline/export_nodes.py",
@@ -219,12 +199,151 @@
     "local_ground_truth": true
   },
   "model_label_counts": {
-    "desert": 8309,
-    "oasis": 8653,
-    "mirage": 9435,
-    "swamp": 7374,
-    "unknown": 429
+    "desert": 5610,
+    "oasis": 6673,
+    "mirage": 5896,
+    "swamp": 5405,
+    "unknown": 10616
   },
   "proxy_label_counts": null,
-  "model_proxy_disagreement_count": 0
+  "model_proxy_disagreement_count": 0,
+  "training_schema": [
+    "food_800m",
+    "food_1500m",
+    "nearest_food_km",
+    "road_degree",
+    "road_rank_mean",
+    "road_rank_max",
+    "inter_density_1km",
+    "major_road_dist_km"
+  ],
+  "comparison_model": {
+    "model_version": "notebook04-graphsage-mysuru-v2.0.0",
+    "schema_version": "notebook-osm-road-food-v2.0.0",
+    "feature_names": [
+      "food_800m",
+      "food_1500m",
+      "nearest_food_km",
+      "road_degree",
+      "road_rank_mean",
+      "road_rank_max",
+      "inter_density_1km",
+      "major_road_dist_km"
+    ],
+    "class_keys": [
+      "desert",
+      "oasis",
+      "mirage",
+      "swamp"
+    ],
+    "promotion_passed": true,
+    "metrics": {
+      "spatial_cv_macro_f1": 0.37922576973054845,
+      "spatial_cv_accuracy": 0.4059093063675146,
+      "per_class": {
+        "desert": {
+          "precision": 0.43216137029524454,
+          "recall": 0.5691599881270407,
+          "f1": 0.49128875224186525,
+          "support": 6738
+        },
+        "oasis": {
+          "precision": 0.6498789904344819,
+          "recall": 0.4093350754936121,
+          "f1": 0.502293680131831,
+          "support": 13776
+        },
+        "mirage": {
+          "precision": 0.30755064456721914,
+          "recall": 0.2863738293101174,
+          "f1": 0.29658469945355187,
+          "support": 7581
+        },
+        "swamp": {
+          "precision": 0.17057569296375266,
+          "recall": 0.3380281690140845,
+          "f1": 0.22673594709494568,
+          "support": 3550
+        }
+      },
+      "temperature": 2.530938128110249,
+      "uncalibrated_ece": 0.10681118822807047,
+      "calibrated_ece": 0.057291000085468544,
+      "confidence_threshold": 0.32,
+      "entropy_threshold": 0.999812427902921,
+      "selective_coverage": 0.6163374940748934,
+      "selective_macro_f1": 0.3865265773027166,
+      "threshold_search_macro_f1": 0.3861695529084146,
+      "historical_macro_f1_gate": 0.292,
+      "promotion_passed": true,
+      "promotion_checks": {
+        "historical_macro_f1": true,
+        "all_classes_predicted": true,
+        "minimum_selective_coverage": true
+      },
+      "folds": [
+        {
+          "fold": 0,
+          "train_nodes": 21394,
+          "validation_nodes": 5969,
+          "test_nodes": 4282,
+          "best_epoch": 5,
+          "validation_macro_f1": 0.4544029795608638,
+          "test_macro_f1": 0.25150302624719056
+        },
+        {
+          "fold": 1,
+          "train_nodes": 18968,
+          "validation_nodes": 4087,
+          "test_nodes": 8590,
+          "best_epoch": 14,
+          "validation_macro_f1": 0.3449426719213437,
+          "test_macro_f1": 0.36673321448065066
+        },
+        {
+          "fold": 2,
+          "train_nodes": 21390,
+          "validation_nodes": 5277,
+          "test_nodes": 4978,
+          "best_epoch": 1,
+          "validation_macro_f1": 0.3074322526377321,
+          "test_macro_f1": 0.38862109913178394
+        },
+        {
+          "fold": 3,
+          "train_nodes": 18074,
+          "validation_nodes": 6222,
+          "test_nodes": 7349,
+          "best_epoch": 32,
+          "validation_macro_f1": 0.4144489424983726,
+          "test_macro_f1": 0.22279176032460715
+        },
+        {
+          "fold": 4,
+          "train_nodes": 20084,
+          "validation_nodes": 5115,
+          "test_nodes": 6446,
+          "best_epoch": 27,
+          "validation_macro_f1": 0.36913419650003787,
+          "test_macro_f1": 0.3414388600647691
+        }
+      ]
+    },
+    "training": {
+      "seed": 23,
+      "final_epochs": 14,
+      "labeled_nodes": 31645,
+      "target": "published Bengaluru ward label broadcast to road nodes",
+      "split": "five spatial ward-centroid zones; fold-local scaling; split-safe graphs",
+      "trained_at": "2026-06-20T10:46:59.093866+00:00"
+    },
+    "checkpoint_sha256": "6d2a110fb9c334630e9c622067099491f24873f5c9d865858c689533c46c03ca",
+    "status": "promoted",
+    "target_city_ood_rate": 0.009707602339181286,
+    "target_city_abstention_rate": 0.3104093567251462,
+    "source_notebooks": [
+      "03_graphsage_road_nodes.ipynb",
+      "04_transfer_mysore_scenario.ipynb"
+    ]
+  }
 }

@@ -44,7 +44,7 @@ export const CITIES: City[] = [
     evidence_state: "SCENARIO",
     data_readiness: 0.62,
     caveat:
-      "Matched OSM-only GraphSAGE candidate plus proxy fallback. No local labels or observed affordability; the candidate remains evaluation-only until every release gate passes.",
+      "Reproducible notebook-04 GraphSAGE projection plus proxy comparison. No local labels or observed affordability; uncertain and out-of-domain nodes remain unknown.",
     last_updated: "2026-06-04",
     center: [76.6394, 12.2958],
     zoom: 11.2,
@@ -311,7 +311,7 @@ export const RUNS: ModelRun[] = [
   {
     id: "run_blr_001",
     city_id: "bengaluru",
-    checkpoint_id: "osm_graphsage_v1_evaluation",
+    checkpoint_id: "notebook04_graphsage_v2",
     run_type: "LOCAL_MODEL",
     status: "succeeded",
     started_at: "2026-05-12T08:14:00Z",
@@ -342,10 +342,10 @@ export const RUNS: ModelRun[] = [
     completed_at: "2026-06-04T09:34:22Z",
     feature_coverage: 0.58,
     warnings: [
-      "Candidate model did not pass the swamp-F1 promotion gate.",
+      "No Mysuru ground truth; absolute labels remain unvalidated projections.",
       "Affordability is unavailable; model mirage/oasis are inferred patterns only.",
     ],
-    output_version: "mys_osm_graphsage_eval_v1.0",
+    output_version: "mys_notebook04_graphsage_v2.0",
   },
   {
     id: "run_mys_002",

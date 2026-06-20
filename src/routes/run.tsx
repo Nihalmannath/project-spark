@@ -131,8 +131,8 @@ export function RunScreen() {
           </dl>
           {audit.verdict === "CAUTION" && (
             <p className="mt-3 rounded-sm border border-dashed border-[color:var(--color-desert)] bg-background/40 p-2 text-[10px] italic text-[color:var(--color-ink-deep)]">
-              Warning: Mysuru affordability is unavailable. The matched OSM-only checkpoint is
-              evaluation-only because its swamp F1 did not pass the promotion gate.
+              Mysuru affordability is unavailable. The promoted notebook model therefore reports
+              learned projections with calibrated abstention, not observed local classes.
             </p>
           )}
         </section>
