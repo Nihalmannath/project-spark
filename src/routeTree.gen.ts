@@ -24,12 +24,14 @@ import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as ExportsRouteImport } from './routes/exports'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ComparisonRouteImport } from './routes/comparison'
+import { Route as CitiesRouteImport } from './routes/cities'
 import { Route as CheckpointsRouteImport } from './routes/checkpoints'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
 import { Route as NotebooksIdRouteImport } from './routes/notebooks.$id'
+import { Route as CityIdRouteImport } from './routes/city.$id'
 
 const ValidationRoute = ValidationRouteImport.update({
   id: '/validation',
@@ -106,6 +108,11 @@ const ComparisonRoute = ComparisonRouteImport.update({
   path: '/comparison',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CitiesRoute = CitiesRouteImport.update({
+  id: '/cities',
+  path: '/cities',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckpointsRoute = CheckpointsRouteImport.update({
   id: '/checkpoints',
   path: '/checkpoints',
@@ -136,12 +143,18 @@ const NotebooksIdRoute = NotebooksIdRouteImport.update({
   path: '/notebooks/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CityIdRoute = CityIdRouteImport.update({
+  id: '/city/$id',
+  path: '/city/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/audit': typeof AuditRoute
   '/checkpoints': typeof CheckpointsRoute
+  '/cities': typeof CitiesRoute
   '/comparison': typeof ComparisonRoute
   '/dashboard': typeof DashboardRoute
   '/exports': typeof ExportsRoute
@@ -157,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/scenario-lab': typeof ScenarioLabRoute
   '/target': typeof TargetRoute
   '/validation': typeof ValidationRoute
+  '/city/$id': typeof CityIdRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks/': typeof NotebooksIndexRoute
 }
@@ -165,6 +179,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/audit': typeof AuditRoute
   '/checkpoints': typeof CheckpointsRoute
+  '/cities': typeof CitiesRoute
   '/comparison': typeof ComparisonRoute
   '/dashboard': typeof DashboardRoute
   '/exports': typeof ExportsRoute
@@ -180,6 +195,7 @@ export interface FileRoutesByTo {
   '/scenario-lab': typeof ScenarioLabRoute
   '/target': typeof TargetRoute
   '/validation': typeof ValidationRoute
+  '/city/$id': typeof CityIdRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks': typeof NotebooksIndexRoute
 }
@@ -189,6 +205,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/audit': typeof AuditRoute
   '/checkpoints': typeof CheckpointsRoute
+  '/cities': typeof CitiesRoute
   '/comparison': typeof ComparisonRoute
   '/dashboard': typeof DashboardRoute
   '/exports': typeof ExportsRoute
@@ -204,6 +221,7 @@ export interface FileRoutesById {
   '/scenario-lab': typeof ScenarioLabRoute
   '/target': typeof TargetRoute
   '/validation': typeof ValidationRoute
+  '/city/$id': typeof CityIdRoute
   '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks/': typeof NotebooksIndexRoute
 }
@@ -214,6 +232,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/audit'
     | '/checkpoints'
+    | '/cities'
     | '/comparison'
     | '/dashboard'
     | '/exports'
@@ -229,6 +248,7 @@ export interface FileRouteTypes {
     | '/scenario-lab'
     | '/target'
     | '/validation'
+    | '/city/$id'
     | '/notebooks/$id'
     | '/notebooks/'
   fileRoutesByTo: FileRoutesByTo
@@ -237,6 +257,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/audit'
     | '/checkpoints'
+    | '/cities'
     | '/comparison'
     | '/dashboard'
     | '/exports'
@@ -252,6 +273,7 @@ export interface FileRouteTypes {
     | '/scenario-lab'
     | '/target'
     | '/validation'
+    | '/city/$id'
     | '/notebooks/$id'
     | '/notebooks'
   id:
@@ -260,6 +282,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/audit'
     | '/checkpoints'
+    | '/cities'
     | '/comparison'
     | '/dashboard'
     | '/exports'
@@ -275,6 +298,7 @@ export interface FileRouteTypes {
     | '/scenario-lab'
     | '/target'
     | '/validation'
+    | '/city/$id'
     | '/notebooks/$id'
     | '/notebooks/'
   fileRoutesById: FileRoutesById
@@ -284,6 +308,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuditRoute: typeof AuditRoute
   CheckpointsRoute: typeof CheckpointsRoute
+  CitiesRoute: typeof CitiesRoute
   ComparisonRoute: typeof ComparisonRoute
   DashboardRoute: typeof DashboardRoute
   ExportsRoute: typeof ExportsRoute
@@ -299,6 +324,7 @@ export interface RootRouteChildren {
   ScenarioLabRoute: typeof ScenarioLabRoute
   TargetRoute: typeof TargetRoute
   ValidationRoute: typeof ValidationRoute
+  CityIdRoute: typeof CityIdRoute
   NotebooksIdRoute: typeof NotebooksIdRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
@@ -410,6 +436,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComparisonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cities': {
+      id: '/cities'
+      path: '/cities'
+      fullPath: '/cities'
+      preLoaderRoute: typeof CitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkpoints': {
       id: '/checkpoints'
       path: '/checkpoints'
@@ -452,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotebooksIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/city/$id': {
+      id: '/city/$id'
+      path: '/city/$id'
+      fullPath: '/city/$id'
+      preLoaderRoute: typeof CityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -460,6 +500,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuditRoute: AuditRoute,
   CheckpointsRoute: CheckpointsRoute,
+  CitiesRoute: CitiesRoute,
   ComparisonRoute: ComparisonRoute,
   DashboardRoute: DashboardRoute,
   ExportsRoute: ExportsRoute,
@@ -475,6 +516,7 @@ const rootRouteChildren: RootRouteChildren = {
   ScenarioLabRoute: ScenarioLabRoute,
   TargetRoute: TargetRoute,
   ValidationRoute: ValidationRoute,
+  CityIdRoute: CityIdRoute,
   NotebooksIdRoute: NotebooksIdRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
 }
