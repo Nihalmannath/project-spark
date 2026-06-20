@@ -108,7 +108,7 @@ export function WorldCityMap({ onSelectLive }: { onSelectLive: (city: WorldCity)
             visible={visible}
             active={activeId === city.id}
             onClick={() => {
-              if (city.status === "live") onSelectLive(city);
+              if (city.status !== "coming-soon") onSelectLive(city);
               else setActiveId((id) => (id === city.id ? null : city.id));
             }}
           />
@@ -131,7 +131,8 @@ export function WorldCityMap({ onSelectLive }: { onSelectLive: (city: WorldCity)
                 <span className="text-muted-foreground">, {activePin.city.country}</span>
               </p>
               <p className="mt-1.5 text-[12px] leading-snug text-muted-foreground">
-                We&apos;re mapping {activePin.city.name} next. Only Bengaluru is live today.
+                We&apos;re mapping {activePin.city.name} next. Bengaluru and Mysuru are selectable
+                today.
               </p>
               <button
                 type="button"
@@ -164,7 +165,8 @@ function CityPin({
   active: boolean;
   onClick: () => void;
 }) {
-  const live = city.status === "live";
+  const runnable = city.status !== "coming-soon";
+  const available = city.status === "available";
   return (
     <motion.button
       type="button"
@@ -181,11 +183,11 @@ function CityPin({
       whileTap={visible ? { scale: 0.9 } : undefined}
     >
       <span className="relative grid place-items-center">
-        {live && (
+        {runnable && (
           <motion.span
             aria-hidden
             className="absolute rounded-full"
-            style={{ width: 12, height: 12, background: LIVE }}
+            style={{ width: 12, height: 12, background: available ? LIVE : "#d59e71" }}
             animate={{ scale: [1, 2.8], opacity: [0.45, 0] }}
             transition={{ repeat: Infinity, duration: 2.4, ease: "easeOut" }}
           />
@@ -193,12 +195,14 @@ function CityPin({
         <span
           className="relative rounded-full"
           style={
-            live
+            runnable
               ? {
                   width: 11,
                   height: 11,
-                  background: LIVE,
-                  boxShadow: "0 0 0 1.5px rgba(26,26,26,.18), 0 0 12px 2px rgba(255,192,0,.55)",
+                  background: available ? LIVE : "#d59e71",
+                  boxShadow: available
+                    ? "0 0 0 1.5px rgba(26,26,26,.18), 0 0 12px 2px rgba(255,192,0,.55)"
+                    : "0 0 0 1.5px rgba(26,26,26,.18), 0 0 10px 1px rgba(213,158,113,.5)",
                 }
               : {
                   width: 7,
@@ -212,7 +216,7 @@ function CityPin({
       <span
         className={
           "mt-1.5 whitespace-nowrap smallcaps text-[9px] transition-colors " +
-          (live || active
+          (runnable || active
             ? "text-foreground"
             : "text-muted-foreground/70 group-hover:text-foreground")
         }

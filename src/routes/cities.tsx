@@ -25,8 +25,8 @@ function CitiesPage() {
           variants={fadeUp}
           className="mt-3 text-sm leading-relaxed text-[color:var(--color-ink-deep)]"
         >
-          Bengaluru is live today — mapped at every road intersection. Every other city is on the way.
-          Spin the globe and tap any pin to see where we&apos;re headed next.
+          Bengaluru has local evidence and Mysuru has a calibrated transfer projection. Spin the
+          globe to open either city, or inspect the wider city roadmap.
         </motion.p>
       </motion.div>
 
@@ -42,6 +42,7 @@ function CitiesPage() {
         />
         <div className="pointer-events-none absolute bottom-3 left-3 z-30 flex items-center gap-4 rounded-sm border border-border bg-card/85 px-3 py-1.5 backdrop-blur">
           <LegendDot color="#ffc000" label="Live" glow />
+          <LegendDot color="#d59e71" label="Scenario" />
           <LegendDot color="#8a97a6" label="Coming soon" />
         </div>
       </motion.div>

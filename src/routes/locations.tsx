@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { CITIES, evidenceTone } from "../data/platform";
 import { EvidenceBadge } from "../components/EvidenceBadge";
 import { useCity } from "../lib/city-context";
@@ -10,6 +11,23 @@ export const Route = createFileRoute("/locations")({
 
 function Locations() {
   const { city, setCityId } = useCity();
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"all" | "runnable" | "roadmap">("all");
+  const visibleCities = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return CITIES.filter((candidate) => {
+      const matchesQuery =
+        !normalized ||
+        `${candidate.display_name} ${candidate.region} ${candidate.country}`
+          .toLowerCase()
+          .includes(normalized);
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "runnable" && candidate.evidence_state !== "COMING_SOON") ||
+        (filter === "roadmap" && candidate.evidence_state === "COMING_SOON");
+      return matchesQuery && matchesFilter;
+    });
+  }, [filter, query]);
   return (
     <div className="mx-auto max-w-[1400px] px-6 py-6">
       <header className="border-b border-border pb-4">
@@ -19,8 +37,37 @@ function Locations() {
           carry an OSM-derived projection only. Coming-soon cities have no predictions.
         </p>
       </header>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex rounded-sm border border-border bg-card p-1">
+          {(["all", "runnable", "roadmap"] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setFilter(option)}
+              aria-pressed={filter === option}
+              className={`rounded-sm px-3 py-2 text-[11px] capitalize transition-colors ${
+                filter === option
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {option === "runnable" ? "Available now" : option}
+            </button>
+          ))}
+        </div>
+        <label className="flex min-w-[260px] items-center gap-2 border-b border-border px-1 py-2 text-[11px] focus-within:border-foreground">
+          <span className="text-muted-foreground">Search</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="City or region"
+            className="w-full bg-transparent text-foreground outline-none placeholder:text-muted-foreground"
+          />
+        </label>
+      </div>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        {CITIES.map((c) => {
+        {visibleCities.map((c) => {
           const tone = evidenceTone(c.evidence_state);
           const active = c.id === city.id;
           return (
@@ -64,6 +111,11 @@ function Locations() {
             </button>
           );
         })}
+        {visibleCities.length === 0 && (
+          <div className="border border-dashed border-border p-6 text-sm text-muted-foreground md:col-span-2">
+            No city matches this search. Clear the search or view the roadmap.
+          </div>
+        )}
         <div className="rounded-sm border border-dashed border-border p-5">
           <p className="smallcaps text-[9px] text-muted-foreground">+ Request new region</p>
           <p className="mt-1 font-serif text-base text-foreground">Add a city</p>
