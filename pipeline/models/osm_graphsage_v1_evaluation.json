@@ -1,0 +1,148 @@
+{
+  "metrics": {
+    "spatial_cv_macro_f1": 0.3527923385757521,
+    "spatial_cv_accuracy": 0.3909306367514615,
+    "per_class": {
+      "desert": {
+        "precision": 0.40528813559322036,
+        "recall": 0.44360344315820716,
+        "f1": 0.423581095443917,
+        "support": 6738
+      },
+      "oasis": {
+        "precision": 0.5926664009565564,
+        "recall": 0.43176538908246226,
+        "f1": 0.4995800436754578,
+        "support": 13776
+      },
+      "mirage": {
+        "precision": 0.364662136171304,
+        "recall": 0.37514839730906213,
+        "f1": 0.3698309492847854,
+        "support": 7581
+      },
+      "swamp": {
+        "precision": 0.09168609168609168,
+        "recall": 0.16619718309859155,
+        "f1": 0.11817726589884829,
+        "support": 3550
+      }
+    },
+    "temperature": 4.999994150111906,
+    "uncalibrated_ece": 0.19306225627257825,
+    "calibrated_ece": 0.0773949528880117,
+    "confidence_threshold": 0.26,
+    "entropy_threshold": 0.9998145432716619,
+    "entropy_quantile": 0.995,
+    "selective_coverage": 0.9751303523463423,
+    "selective_macro_f1": 0.3541750789390529,
+    "threshold_search_macro_f1": 0.35381585010989286,
+    "folds": [
+      {
+        "fold": 0,
+        "train_nodes": 21004,
+        "validation_nodes": 4195,
+        "test_nodes": 6446,
+        "best_epoch": 8,
+        "validation_macro_f1": 0.5224290260093439,
+        "test_macro_f1": 0.29944504490459595
+      },
+      {
+        "fold": 1,
+        "train_nodes": 18987,
+        "validation_nodes": 5209,
+        "test_nodes": 7449,
+        "best_epoch": 45,
+        "validation_macro_f1": 0.36355820943037853,
+        "test_macro_f1": 0.2344713539356706
+      },
+      {
+        "fold": 2,
+        "train_nodes": 21390,
+        "validation_nodes": 5277,
+        "test_nodes": 4978,
+        "best_epoch": 3,
+        "validation_macro_f1": 0.30117923859738643,
+        "test_macro_f1": 0.46512302290915114
+      },
+      {
+        "fold": 3,
+        "train_nodes": 18832,
+        "validation_nodes": 4323,
+        "test_nodes": 8490,
+        "best_epoch": 31,
+        "validation_macro_f1": 0.45251530088172365,
+        "test_macro_f1": 0.34418574404988656
+      },
+      {
+        "fold": 4,
+        "train_nodes": 20847,
+        "validation_nodes": 6516,
+        "test_nodes": 4282,
+        "best_epoch": 6,
+        "validation_macro_f1": 0.35575425754092393,
+        "test_macro_f1": 0.3301517491800062
+      }
+    ],
+    "promotion_passed": false,
+    "promotion_checks": {
+      "macro_f1": true,
+      "all_class_f1": false,
+      "calibration": true,
+      "coverage": true
+    },
+    "promotion_thresholds": {
+      "minimum_macro_f1": 0.312,
+      "minimum_class_f1": 0.15,
+      "maximum_ece": 0.15,
+      "minimum_selective_coverage": 0.6
+    }
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "train_nodes": 21004,
+      "validation_nodes": 4195,
+      "test_nodes": 6446,
+      "best_epoch": 8,
+      "validation_macro_f1": 0.5224290260093439,
+      "test_macro_f1": 0.29944504490459595
+    },
+    {
+      "fold": 1,
+      "train_nodes": 18987,
+      "validation_nodes": 5209,
+      "test_nodes": 7449,
+      "best_epoch": 45,
+      "validation_macro_f1": 0.36355820943037853,
+      "test_macro_f1": 0.2344713539356706
+    },
+    {
+      "fold": 2,
+      "train_nodes": 21390,
+      "validation_nodes": 5277,
+      "test_nodes": 4978,
+      "best_epoch": 3,
+      "validation_macro_f1": 0.30117923859738643,
+      "test_macro_f1": 0.46512302290915114
+    },
+    {
+      "fold": 3,
+      "train_nodes": 18832,
+      "validation_nodes": 4323,
+      "test_nodes": 8490,
+      "best_epoch": 31,
+      "validation_macro_f1": 0.45251530088172365,
+      "test_macro_f1": 0.34418574404988656
+    },
+    {
+      "fold": 4,
+      "train_nodes": 20847,
+      "validation_nodes": 6516,
+      "test_nodes": 4282,
+      "best_epoch": 6,
+      "validation_macro_f1": 0.35575425754092393,
+      "test_macro_f1": 0.3301517491800062
+    }
+  ]
+}

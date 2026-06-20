@@ -10,10 +10,14 @@ mapboxgl.accessToken =
 const COLOR_EXPR: any = [
   "match",
   ["get", "label"],
-  "desert", labelColor("desert"),
-  "swamp", labelColor("swamp"),
-  "mirage", labelColor("mirage"),
-  "oasis", labelColor("oasis"),
+  "desert",
+  labelColor("desert"),
+  "swamp",
+  labelColor("swamp"),
+  "mirage",
+  labelColor("mirage"),
+  "oasis",
+  labelColor("oasis"),
   labelColor("unknown"),
 ];
 
@@ -26,7 +30,33 @@ function ringPolygon(center: [number, number], radiusM: number, steps = 72) {
     const a = (i / steps) * 2 * Math.PI;
     coords.push([lon + dLon * Math.cos(a), lat + dLat * Math.sin(a)]);
   }
-  return { type: "Feature" as const, geometry: { type: "Polygon" as const, coordinates: [coords] }, properties: {} };
+  return {
+    type: "Feature" as const,
+    geometry: { type: "Polygon" as const, coordinates: [coords] },
+    properties: {},
+  };
+}
+
+function hydrateNode(properties: NodeProps): NodeProps {
+  const rawFlags = properties.risk_flags as unknown;
+  if (typeof rawFlags === "string") {
+    try {
+      properties.risk_flags = JSON.parse(rawFlags) as string[];
+    } catch {
+      properties.risk_flags = rawFlags ? [rawFlags] : [];
+    }
+  }
+  const rawProbabilities = properties.model_probabilities as unknown;
+  if (typeof rawProbabilities === "string") {
+    try {
+      properties.model_probabilities = JSON.parse(
+        rawProbabilities,
+      ) as NodeProps["model_probabilities"];
+    } catch {
+      properties.model_probabilities = null;
+    }
+  }
+  return properties;
 }
 
 interface Props {
@@ -88,45 +118,72 @@ export function NodeMap({
 
       // radius ring (under nodes)
       map.addLayer({
-        id: "ring-fill", type: "fill", source: "ring",
+        id: "ring-fill",
+        type: "fill",
+        source: "ring",
         paint: { "fill-color": "#15191f", "fill-opacity": 0.06 },
       });
       map.addLayer({
-        id: "ring-line", type: "line", source: "ring",
-        paint: { "line-color": "#15191f", "line-width": 1, "line-dasharray": [2, 2], "line-opacity": 0.5 },
+        id: "ring-line",
+        type: "line",
+        source: "ring",
+        paint: {
+          "line-color": "#15191f",
+          "line-width": 1,
+          "line-dasharray": [2, 2],
+          "line-opacity": 0.5,
+        },
       });
 
       // nodes
       map.addLayer({
-        id: "node-pt", type: "circle", source: "nodes",
+        id: "node-pt",
+        type: "circle",
+        source: "nodes",
         paint: {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 1.6, 12, 2.8, 15, 5.5],
           "circle-color": ["coalesce", ["feature-state", "afterColor"], COLOR_EXPR],
           "circle-opacity": [
             "case",
-            ["==", ["feature-state", "dim"], true], 0.12,
+            ["==", ["feature-state", "dim"], true],
+            0.12,
             ["interpolate", ["linear"], ["get", "confidence"], 0.3, 0.55, 0.95, 0.95],
           ],
           "circle-stroke-width": [
             "case",
-            ["boolean", ["feature-state", "selected"], false], 2.2,
-            ["boolean", ["feature-state", "moved"], false], 1.4,
+            ["boolean", ["feature-state", "selected"], false],
+            2.2,
+            ["boolean", ["feature-state", "moved"], false],
+            1.4,
+            ["==", ["get", "evidence_level"], "proxy"],
+            0.8,
+            ["==", ["get", "evidence_level"], "model"],
+            0.8,
             0,
           ],
           "circle-stroke-color": [
             "case",
-            ["boolean", ["feature-state", "selected"], false], "#15191f",
+            ["boolean", ["feature-state", "selected"], false],
+            "#15191f",
+            ["boolean", ["feature-state", "moved"], false],
             "#1a7a4a",
+            ["==", ["get", "evidence_level"], "model"],
+            "#15191f",
+            "#ffffff",
           ],
         },
       });
 
       // hub marker
       map.addLayer({
-        id: "hub-pt", type: "circle", source: "hub",
+        id: "hub-pt",
+        type: "circle",
+        source: "hub",
         paint: {
-          "circle-radius": 7, "circle-color": "#15191f",
-          "circle-stroke-width": 3, "circle-stroke-color": "#ffffff",
+          "circle-radius": 7,
+          "circle-color": "#15191f",
+          "circle-stroke-width": 3,
+          "circle-stroke-color": "#ffffff",
         },
       });
 
@@ -138,7 +195,7 @@ export function NodeMap({
       map.on("click", "node-pt", (e) => {
         const f = e.features?.[0] as unknown as { properties?: NodeProps } | undefined;
         const p = f?.properties;
-        if (p && cbRef.current.onSelect) cbRef.current.onSelect(p);
+        if (p && cbRef.current.onSelect) cbRef.current.onSelect(hydrateNode(p));
       });
       map.on("click", (e) => {
         if (!cbRef.current.pickHub || !cbRef.current.onPickHub) return;
@@ -152,7 +209,11 @@ export function NodeMap({
       });
     });
 
-    return () => { map.remove(); mapRef.current = null; readyRef.current = false; };
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      readyRef.current = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geojsonUrl]);
 
@@ -179,11 +240,21 @@ export function NodeMap({
     if (!src) return;
     src.setData(
       hub
-        ? { type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Point", coordinates: hub }, properties: {} }] }
+        ? {
+            type: "FeatureCollection",
+            features: [
+              { type: "Feature", geometry: { type: "Point", coordinates: hub }, properties: {} },
+            ],
+          }
         : { type: "FeatureCollection", features: [] },
     );
   }
-  useEffect(() => { if (readyRef.current) { applyRing(); applyHub(); } }, [hub, radiusM]); // eslint-disable-line
+  useEffect(() => {
+    if (readyRef.current) {
+      applyRing();
+      applyHub();
+    }
+  }, [hub, radiusM]); // eslint-disable-line
 
   // filter dim
   useEffect(() => {
@@ -196,13 +267,15 @@ export function NodeMap({
       // dim is set via querying rendered features is heavy; instead use paint filter opacity by label
       map.setPaintProperty("node-pt", "circle-opacity", [
         "case",
-        ["!=", ["get", "label"], filterLabel], 0.08,
+        ["!=", ["get", "label"], filterLabel],
+        0.08,
         ["interpolate", ["linear"], ["get", "confidence"], 0.3, 0.55, 0.95, 0.95],
       ]);
     } else {
       map.setPaintProperty("node-pt", "circle-opacity", [
         "case",
-        ["==", ["feature-state", "dim"], true], 0.12,
+        ["==", ["feature-state", "dim"], true],
+        0.12,
         ["interpolate", ["linear"], ["get", "confidence"], 0.3, 0.55, 0.95, 0.95],
       ]);
     }
@@ -220,7 +293,10 @@ export function NodeMap({
       scenarioChanges.forEach((ch) => {
         map.setFeatureState(
           { source: "nodes", id: ch.id },
-          { afterColor: labelColor(ch.after), moved: ch.before === "desert" && ch.after !== "desert" },
+          {
+            afterColor: labelColor(ch.after),
+            moved: ch.before === "desert" && ch.after !== "desert",
+          },
         );
         changedRef.current.add(ch.id);
       });
@@ -238,7 +314,8 @@ export function NodeMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
-    if (lastSel.current != null) map.setFeatureState({ source: "nodes", id: lastSel.current }, { selected: false });
+    if (lastSel.current != null)
+      map.setFeatureState({ source: "nodes", id: lastSel.current }, { selected: false });
     if (selectedId != null) {
       map.setFeatureState({ source: "nodes", id: selectedId }, { selected: true });
       lastSel.current = selectedId;

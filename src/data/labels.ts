@@ -46,7 +46,7 @@ export const LABELS: Record<LabelKey, LabelDef> = {
     name: "Unknown / Low confidence",
     shortDef: "Not enough data to estimate this area",
     longDef:
-      "Areas where the model's prediction confidence falls below the operational threshold. Treat as needing further validation.",
+      "Areas withheld because evidence is incomplete, model confidence is low, predictive entropy is high, or features fall outside the training domain.",
     color: "var(--color-unknown)",
   },
 };

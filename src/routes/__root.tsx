@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "A GraphSAGE model labels Bengaluru food environments at road-intersection scale, then transfers to Mysuru with an interactive jobs-hub scenario.",
+          "Bengaluru evidence is mapped at road-intersection scale; Mysuru uses a promotion-gated OSM-only GraphSAGE evaluation with a conservative proxy fallback.",
       },
       { property: "og:title", content: "Food Spatial Intelligence" },
       {

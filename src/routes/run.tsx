@@ -121,21 +121,30 @@ export function RunScreen() {
             <Row k="source_checkpoint_id" v={source.id} />
             <Row k="target_city_id" v={target?.id ?? "—"} />
             <Row k="feature_schema_version" v={source.feature_schema_version.split(" ")[0]} />
-            <Row k="input_dataset_versions" v={target?.id === "mysuru" ? "osm_2025-08, places_2025-09" : "—"} />
+            <Row
+              k="input_dataset_versions"
+              v={target?.id === "mysuru" ? "osm_2025-08, places_2025-09" : "—"}
+            />
             <Row k="compatibility_audit" v={audit.verdict.toLowerCase()} />
             <Row k="status" v={done ? "succeeded" : stage >= 0 ? "running" : "idle"} />
             <Row k="run_timestamp" v={new Date().toISOString()} />
           </dl>
           {audit.verdict === "CAUTION" && (
             <p className="mt-3 rounded-sm border border-dashed border-[color:var(--color-desert)] bg-background/40 p-2 text-[10px] italic text-[color:var(--color-ink-deep)]">
-              Warning: imputed affordability/quality features will surface in run.warnings.
+              Warning: Mysuru affordability is unavailable. The matched OSM-only checkpoint is
+              evaluation-only because its swamp F1 did not pass the promotion gate.
             </p>
           )}
         </section>
       </div>
 
       <div className="mt-6 flex items-center justify-between">
-        <Link to="/audit" className="smallcaps text-[10px] text-muted-foreground hover:text-foreground">← Back to audit</Link>
+        <Link
+          to="/audit"
+          className="smallcaps text-[10px] text-muted-foreground hover:text-foreground"
+        >
+          ← Back to audit
+        </Link>
         <div className="flex items-center gap-3">
           <button
             onClick={start}
@@ -147,7 +156,9 @@ export function RunScreen() {
           <Link
             to="/results"
             className={`smallcaps text-[10px] rounded-sm px-4 py-2.5 ${
-              done ? "bg-foreground text-background hover:bg-foreground/85" : "bg-muted text-muted-foreground"
+              done
+                ? "bg-foreground text-background hover:bg-foreground/85"
+                : "bg-muted text-muted-foreground"
             }`}
           >
             View results →

@@ -104,11 +104,11 @@ export function buildAudit(source: ModelCheckpoint, target: TargetCity | null): 
     return {
       verdict: "CAUTION",
       summary:
-        "Bengaluru → Mysuru transfer is feasible. Affordability and quality features are imputed from source priors; no local validation labels exist.",
+        "Mysuru has a matched 25-feature OSM GraphSAGE candidate and a conservative proxy fallback. The candidate remains evaluation-only until every promotion gate passes.",
       readiness: [
         { label: "Administrative boundary", status: "pass" },
-        { label: "Road graph (OSM)", status: "pass", note: "8,204 edges" },
-        { label: "Food POIs", status: "pass", note: "2,841 nodes" },
+        { label: "Road graph (OSM)", status: "pass", note: "55,966 edges" },
+        { label: "Food POIs", status: "warn", note: "312 extracted OSM features" },
         {
           label: "Sufficient food-POI coverage",
           status: "warn",
@@ -120,8 +120,9 @@ export function buildAudit(source: ModelCheckpoint, target: TargetCity | null): 
           note: source.feature_schema_version,
         },
         { label: "Population / demand data", status: "pass", note: "WorldPop 100m" },
-        { label: "Affordability data", status: "warn", note: "Imputed from Bengaluru priors" },
-        { label: "Quality / diversity data", status: "fail", note: "No Zomato menu coverage" },
+        { label: "Affordability data", status: "fail", note: "Not available; not imputed" },
+        { label: "Quality / diversity data", status: "warn", note: "OSM category proxy only" },
+        { label: "OSM GraphSAGE promotion", status: "fail", note: "Swamp F1 below 0.15" },
       ],
       feature_compat: [
         { label: "Road intersection density", status: "pass" },
@@ -131,7 +132,7 @@ export function buildAudit(source: ModelCheckpoint, target: TargetCity | null): 
         { label: "Grocery density", status: "warn" },
         { label: "Restaurant density", status: "warn", note: "OSM-only count is incomplete" },
         { label: "Urban density", status: "pass" },
-        { label: "Feature missingness", status: "warn", note: "26% of features imputed" },
+        { label: "Feature missingness", status: "warn", note: "Affordability unavailable" },
       ],
       context_compat: [
         { label: "Urban scale (Tier-2)", status: "pass", note: "Both within Karnataka" },

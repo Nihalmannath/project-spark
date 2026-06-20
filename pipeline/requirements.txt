@@ -1,13 +1,14 @@
-# Food-environment node export + inference service.
-# torch is already present in the studio env; the deterministic service below does
-# NOT require torch/torch_geometric (the transferable checkpoint on disk is corrupted),
-# only the geo + numeric stack.
+# Food-environment export, training support, and API dependencies.
 geopandas>=1.0
 shapely>=2.0
 pyproj>=3.6
 scipy>=1.11
+scikit-learn>=1.3
 pandas>=2.0
 numpy>=1.26
-osmnx>=2.0          # only needed to (re)export Mysuru nodes from live OSM
+osmnx>=2.0
 fastapi>=0.110
 uvicorn>=0.29
+# Training also requires torch>=2.0 and torch-geometric>=2.4. They are kept out
+# of this lightweight list because platform-specific wheels must be installed
+# for the deployment CPU/CUDA runtime.

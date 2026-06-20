@@ -36,12 +36,11 @@ export interface ScenarioParams {
   d_food_1500?: number;
   near_floor?: number;
   dens_mult?: number;
+  outlet_categories?: Array<"grocery" | "restaurant" | "fast_food" | "cafe">;
+  cuisine_categories?: string[];
 }
 
-export async function runScenario(
-  city: string,
-  params: ScenarioParams,
-): Promise<ScenarioResult> {
+export async function runScenario(city: string, params: ScenarioParams): Promise<ScenarioResult> {
   const res = await fetch(`${INFERENCE_URL}/api/scenario/${city}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

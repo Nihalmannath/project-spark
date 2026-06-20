@@ -15,8 +15,8 @@ function Locations() {
       <header className="border-b border-border pb-4">
         <h1 className="font-serif text-2xl text-foreground">Locations</h1>
         <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
-          Each city carries an evidence state. Available cities have a local model.
-          Scenario cities carry a transfer projection only. Coming-soon cities have no predictions.
+          Each city carries an evidence state. Available cities have local evidence. Scenario cities
+          carry an OSM-derived projection only. Coming-soon cities have no predictions.
         </p>
       </header>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -47,7 +47,9 @@ function Locations() {
                 </div>
                 <div>
                   <p className="smallcaps text-[9px] text-muted-foreground">Readiness</p>
-                  <p className="mt-0.5 font-mono text-foreground">{Math.round(c.data_readiness * 100)}%</p>
+                  <p className="mt-0.5 font-mono text-foreground">
+                    {Math.round(c.data_readiness * 100)}%
+                  </p>
                 </div>
                 <div>
                   <p className="smallcaps text-[9px] text-muted-foreground">Evidence</p>
