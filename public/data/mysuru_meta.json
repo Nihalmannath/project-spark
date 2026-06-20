@@ -181,9 +181,9 @@
       "labeled_nodes": 31645,
       "target": "published Bengaluru ward label broadcast to road nodes",
       "split": "five spatial ward-centroid zones; fold-local scaling; split-safe graphs",
-      "trained_at": "2026-06-20T10:51:33.360257+00:00"
+      "trained_at": "2026-06-20T10:57:39.608257+00:00"
     },
-    "checkpoint_sha256": "cd17fa75b81dfd104f22c6d9ed4eb277515b580c85316d3de18a85b8ec8139bf",
+    "checkpoint_sha256": "556484454b85a5d481cc15aed50529beebb4417b4f66a28c7dccb165502c7a1b",
     "status": "promoted",
     "target_city_ood_rate": 0.014699727976564134,
     "target_city_abstention_rate": 0.2990165306549487,
@@ -341,9 +341,9 @@
       "labeled_nodes": 31645,
       "target": "published Bengaluru ward label broadcast to road nodes",
       "split": "five spatial ward-centroid zones; fold-local scaling; split-safe graphs",
-      "trained_at": "2026-06-20T10:46:59.093866+00:00"
+      "trained_at": "2026-06-20T10:51:33.360257+00:00"
     },
-    "checkpoint_sha256": "6d2a110fb9c334630e9c622067099491f24873f5c9d865858c689533c46c03ca",
+    "checkpoint_sha256": "cd17fa75b81dfd104f22c6d9ed4eb277515b580c85316d3de18a85b8ec8139bf",
     "status": "promoted",
     "target_city_ood_rate": 0.014699727976564134,
     "target_city_abstention_rate": 0.2990165306549487,

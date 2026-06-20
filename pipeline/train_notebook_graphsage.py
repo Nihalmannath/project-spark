@@ -5,6 +5,7 @@ import argparse
 import copy
 import json
 import random
+import shutil
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -289,7 +290,7 @@ def train(seed=23, max_epochs=120, patience=18):
     META_PATH.write_text(json.dumps(serializable, indent=2))
     EVALUATION_PATH.write_text(json.dumps({"metrics": metrics, "folds": folds}, indent=2))
     THESIS_OUTPUTS.mkdir(parents=True, exist_ok=True)
-    torch.save(checkpoint, THESIS_OUTPUTS / "graphsage_foodenv.pt")
+    shutil.copyfile(CHECKPOINT_PATH, THESIS_OUTPUTS / "graphsage_foodenv.pt")
     (THESIS_OUTPUTS / "graphsage_foodenv_meta.json").write_text(
         json.dumps(serializable, indent=2)
     )
