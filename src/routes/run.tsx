@@ -155,6 +155,7 @@ export function RunScreen() {
           </button>
           <Link
             to="/results"
+            search={{ city: "bengaluru", view: "road" }}
             className={`smallcaps text-[10px] rounded-sm px-4 py-2.5 ${
               done
                 ? "bg-foreground text-background hover:bg-foreground/85"

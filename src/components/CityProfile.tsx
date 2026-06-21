@@ -170,6 +170,7 @@ export function CityProfile() {
             action={
               <Link
                 to="/scenario-lab"
+                search={{ city: "mysuru" }}
                 className="smallcaps shrink-0 rounded-sm border border-foreground px-3 py-2 text-[9px] text-foreground transition-colors hover:bg-muted/40"
               >
                 Run the transfer →
@@ -238,12 +239,14 @@ export function CityProfile() {
       <div className="mt-10 flex flex-wrap gap-3">
         <Link
           to="/results"
+          search={{ city: "bengaluru", view: "road" }}
           className="smallcaps rounded-sm bg-foreground px-5 py-3 text-[10px] text-background transition-colors hover:bg-foreground/85"
         >
           Open the evidence map →
         </Link>
         <Link
           to="/scenario-lab"
+          search={{ city: "bengaluru" }}
           className="smallcaps rounded-sm border border-foreground px-5 py-3 text-[10px] text-foreground transition-colors hover:bg-muted/40"
         >
           Run a transfer scenario →

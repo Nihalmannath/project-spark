@@ -112,6 +112,7 @@ function PreparingScreen() {
         <div className="mt-10 flex items-center gap-5">
           <Link
             to="/results"
+            search={{ city: "bengaluru", view: "road" }}
             className="smallcaps text-[10px] rounded-sm bg-foreground px-5 py-3 text-background hover:bg-foreground/85"
           >
             View food access map →

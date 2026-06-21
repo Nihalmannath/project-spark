@@ -30,6 +30,7 @@ import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
+import { Route as TrainingBengaluruRouteImport } from './routes/training.bengaluru'
 import { Route as NotebooksIdRouteImport } from './routes/notebooks.$id'
 import { Route as CityIdRouteImport } from './routes/city.$id'
 
@@ -138,6 +139,11 @@ const NotebooksIndexRoute = NotebooksIndexRouteImport.update({
   path: '/notebooks/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrainingBengaluruRoute = TrainingBengaluruRouteImport.update({
+  id: '/training/bengaluru',
+  path: '/training/bengaluru',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NotebooksIdRoute = NotebooksIdRouteImport.update({
   id: '/notebooks/$id',
   path: '/notebooks/$id',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/validation': typeof ValidationRoute
   '/city/$id': typeof CityIdRoute
   '/notebooks/$id': typeof NotebooksIdRoute
+  '/training/bengaluru': typeof TrainingBengaluruRoute
   '/notebooks/': typeof NotebooksIndexRoute
 }
 export interface FileRoutesByTo {
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/validation': typeof ValidationRoute
   '/city/$id': typeof CityIdRoute
   '/notebooks/$id': typeof NotebooksIdRoute
+  '/training/bengaluru': typeof TrainingBengaluruRoute
   '/notebooks': typeof NotebooksIndexRoute
 }
 export interface FileRoutesById {
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/validation': typeof ValidationRoute
   '/city/$id': typeof CityIdRoute
   '/notebooks/$id': typeof NotebooksIdRoute
+  '/training/bengaluru': typeof TrainingBengaluruRoute
   '/notebooks/': typeof NotebooksIndexRoute
 }
 export interface FileRouteTypes {
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
     | '/validation'
     | '/city/$id'
     | '/notebooks/$id'
+    | '/training/bengaluru'
     | '/notebooks/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/validation'
     | '/city/$id'
     | '/notebooks/$id'
+    | '/training/bengaluru'
     | '/notebooks'
   id:
     | '__root__'
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/validation'
     | '/city/$id'
     | '/notebooks/$id'
+    | '/training/bengaluru'
     | '/notebooks/'
   fileRoutesById: FileRoutesById
 }
@@ -326,6 +338,7 @@ export interface RootRouteChildren {
   ValidationRoute: typeof ValidationRoute
   CityIdRoute: typeof CityIdRoute
   NotebooksIdRoute: typeof NotebooksIdRoute
+  TrainingBengaluruRoute: typeof TrainingBengaluruRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
@@ -478,6 +491,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotebooksIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/training/bengaluru': {
+      id: '/training/bengaluru'
+      path: '/training/bengaluru'
+      fullPath: '/training/bengaluru'
+      preLoaderRoute: typeof TrainingBengaluruRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/notebooks/$id': {
       id: '/notebooks/$id'
       path: '/notebooks/$id'
@@ -518,6 +538,7 @@ const rootRouteChildren: RootRouteChildren = {
   ValidationRoute: ValidationRoute,
   CityIdRoute: CityIdRoute,
   NotebooksIdRoute: NotebooksIdRoute,
+  TrainingBengaluruRoute: TrainingBengaluruRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
 }
 export const routeTree = rootRouteImport

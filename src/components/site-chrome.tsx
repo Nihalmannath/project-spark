@@ -5,8 +5,7 @@ const NAV_ITEMS = [
   { to: "/cities", label: "Cities", exact: false },
   { to: "/results", label: "Evidence Map", exact: false },
   { to: "/scenario-lab", label: "Transfer & Scenario", exact: false },
-  { to: "/checkpoints", label: "Model & Validation", exact: false },
-  { to: "/methodology", label: "Methodology", exact: false },
+  { to: "/training/bengaluru", label: "How it was built", exact: false },
 ] as const;
 
 export function SiteHeader() {

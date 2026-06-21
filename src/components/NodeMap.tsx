@@ -113,17 +113,16 @@ export function NodeMap({
         id: "ring-fill",
         type: "fill",
         source: "ring",
-        paint: { "fill-color": "#15191f", "fill-opacity": 0.06 },
+        paint: { "fill-color": "#d59e71", "fill-opacity": 0.1 },
       });
       map.addLayer({
         id: "ring-line",
         type: "line",
         source: "ring",
         paint: {
-          "line-color": "#15191f",
-          "line-width": 1,
-          "line-dasharray": [2, 2],
-          "line-opacity": 0.5,
+          "line-color": "#b86f42",
+          "line-width": 2,
+          "line-opacity": 0.9,
         },
       });
 
@@ -255,12 +254,13 @@ export function NodeMap({
         : { type: "FeatureCollection", features: [] },
     );
   }
+  // Helpers close over the current hub and radius and write to stable Mapbox sources.
   useEffect(() => {
     if (readyRef.current) {
       applyRing();
       applyHub();
     }
-  }, [hub, radiusM]); // eslint-disable-line
+  }, [hub, radiusM]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // filter dim
   useEffect(() => {

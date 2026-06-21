@@ -104,6 +104,32 @@ class ArtifactAndApiTests(unittest.TestCase):
         for change in body["changed"]:
             self.assertEqual(change["before"], graph["model_label"][change["id"]])
 
+    def test_physical_outlet_scenario_reports_separate_counts(self):
+        graph = json.loads((self.data / "bengaluru_graph.json").read_text())
+        response = self.client.post("/api/scenario/bengaluru", json={
+            "hub": graph["lonlat"][0],
+            "grocery_outlets": 6,
+            "restaurant_outlets": 6,
+        })
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["outlet_intervention"]["placement_mode"], "hub")
+        self.assertEqual(body["outlet_intervention"]["grocery_outlets"], 6)
+        self.assertEqual(body["outlet_intervention"]["restaurant_outlets"], 6)
+        self.assertEqual(body["outlet_intervention"]["food_800m_increment"], 12)
+        self.assertEqual(body["outlet_intervention"]["food_1500m_increment"], 12)
+        self.assertEqual(body["outlet_intervention"]["intervention_radius_m"], 2000)
+        self.assertGreater(body["outlet_intervention"]["nodes_within_intervention"], 0)
+        self.assertIn("grocery_share_pct", body["proxy_summary"])
+
+    def test_physical_outlet_scenario_rejects_combined_count_above_thirty(self):
+        response = self.client.post("/api/scenario/bengaluru", json={
+            "hub": [77.59, 12.97],
+            "grocery_outlets": 20,
+            "restaurant_outlets": 11,
+        })
+        self.assertEqual(response.status_code, 422)
+
     def test_bengaluru_noop_scenario_has_no_changes(self):
         graph = json.loads((self.data / "bengaluru_graph.json").read_text())
         response = self.client.post("/api/scenario/bengaluru", json={

@@ -24,6 +24,7 @@ from notebook_model import (
 )
 from osm_features import fixed_percentile_rows
 from osm_model import apply_abstention, full_edge_index, ood_scores, softmax_probabilities
+from scenario_intervention import place_outlets_at_hub
 
 DATA = Path(__file__).resolve().parents[1] / "public" / "data"
 MODEL_DIR = Path(__file__).resolve().parent / "models"
@@ -35,6 +36,11 @@ app = FastAPI(title="Notebook 04 Mysuru GraphSAGE Projection Service")
 app.add_middleware(
     CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
 )
+
+# On-demand "any location" transfer endpoints (self-contained module).
+from extract_service import router as extract_router  # noqa: E402
+
+app.include_router(extract_router)
 
 
 @lru_cache(maxsize=1)
@@ -56,12 +62,13 @@ def load_city(city):
         raise HTTPException(404, f"no graph for '{city}'")
     graph = json.loads(path.read_text())
     indexes = feature_indexes(graph)
-    raw = np.asarray(graph["model_features_raw"], dtype=np.float32)[:, indexes]
+    full_raw = np.asarray(graph["model_features_raw"], dtype=np.float32)
+    raw = full_raw[:, indexes]
     lonlat = np.asarray(graph["lonlat"], dtype=float)
     xy = np.asarray(_T.transform(lonlat[:, 0], lonlat[:, 1])).T
     return {
         "n": graph["n"], "edges": graph["edges"], "lonlat": lonlat, "xy": xy,
-        "tree": cKDTree(xy), "raw": raw,
+        "tree": cKDTree(xy), "raw": raw, "full_raw": full_raw, "model_indexes": indexes,
         "sorted_raw": [np.sort(raw[:, column]) for column in range(raw.shape[1])],
         "label": np.asarray(graph["label"], dtype=object),
         "scenario_label": np.asarray(graph.get("model_label", graph["label"]), dtype=object),
@@ -79,6 +86,8 @@ class ScenarioReq(BaseModel):
     d_food_1500: float = 25.0
     near_floor: float = 0.15
     dens_mult: float = 1.4
+    grocery_outlets: int | None = Field(default=None, ge=0, le=30)
+    restaurant_outlets: int | None = Field(default=None, ge=0, le=30)
     outlet_categories: list[str] = Field(default_factory=list)
     cuisine_categories: list[str] = Field(default_factory=list)
 
@@ -148,22 +157,38 @@ def meta(city):
 def scenario(city, request: ScenarioReq):
     data = load_city(city)
     hub_xy = np.asarray(_T.transform(request.hub[0], request.hub[1]))
-    affected = np.asarray(data["tree"].query_ball_point(hub_xy, request.radius_m), dtype=int)
-    if len(affected) == 0:
-        return {
-            "affected": 0, "moved_out_of_desert": 0, "spillover": 0,
-            "changed": [], "transitions": [], "hub": request.hub,
-            "radius_m": request.radius_m, "intervention_evidence": "none",
-        }
-
-    raw = data["raw"].copy()
+    physical = request.grocery_outlets is not None or request.restaurant_outlets is not None
+    intervention = None
+    proxy_summary = None
     indexes = {name: index for index, name in enumerate(NOTEBOOK_FEATURES)}
-    raw[affected, indexes["food_800m"]] += max(float(request.d_food_800), 0.0)
-    raw[affected, indexes["food_1500m"]] += max(float(request.d_food_1500), 0.0)
-    raw[affected, indexes["nearest_food_km"]] = np.minimum(
-        raw[affected, indexes["nearest_food_km"]], max(float(request.near_floor), 0.05)
-    )
-    raw[affected, indexes["inter_density_1km"]] *= max(float(request.dens_mult), 0.0)
+    if physical:
+        try:
+            placed = place_outlets_at_hub(
+                data["full_raw"], data["xy"], hub_xy,
+                request.grocery_outlets or 0, request.restaurant_outlets or 0,
+                request.radius_m,
+            )
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        raw = placed["full_raw"][:, data["model_indexes"]]
+        affected = placed["directly_affected"]
+        intervention = placed["intervention"]
+        proxy_summary = placed["proxy_summary"]
+    else:
+        affected = np.asarray(data["tree"].query_ball_point(hub_xy, request.radius_m), dtype=int)
+        if len(affected) == 0:
+            return {
+                "affected": 0, "moved_out_of_desert": 0, "spillover": 0,
+                "changed": [], "transitions": [], "hub": request.hub,
+                "radius_m": request.radius_m, "intervention_evidence": "none",
+            }
+        raw = data["raw"].copy()
+        raw[affected, indexes["food_800m"]] += max(float(request.d_food_800), 0.0)
+        raw[affected, indexes["food_1500m"]] += max(float(request.d_food_1500), 0.0)
+        raw[affected, indexes["nearest_food_km"]] = np.minimum(
+            raw[affected, indexes["nearest_food_km"]], max(float(request.near_floor), 0.05)
+        )
+        raw[affected, indexes["inter_density_1km"]] *= max(float(request.dens_mult), 0.0)
 
     checkpoint, metadata, labels, probabilities, confidence, entropy, ood, accepted, reasons = _predict(data, raw)
     affected_set = set(map(int, affected))
@@ -204,7 +229,9 @@ def scenario(city, request: ScenarioReq):
         "transitions": _transitions(changes),
         "hub": request.hub,
         "radius_m": request.radius_m,
-        "intervention_evidence": "model",
+        "intervention_evidence": "none" if physical and intervention["total_outlets"] == 0 else "model",
+        "outlet_intervention": intervention,
+        "proxy_summary": proxy_summary,
         "model_version": NOTEBOOK_MODEL_VERSION,
         "model_promotion_passed": bool(checkpoint["promotion_passed"]),
         "checkpoint_sha256": metadata["checkpoint_sha256"],
