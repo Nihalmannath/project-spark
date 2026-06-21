@@ -176,3 +176,45 @@
   color: var(--color-ink-deep);
   letter-spacing: 0.02em;
 }
+
+/* Adaptive-hex map hover popup — FOSZ paper card, not the default Mapbox bubble */
+.adaptive-map-tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 150px;
+}
+.adaptive-map-tooltip .row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.adaptive-map-tooltip i {
+  width: 9px;
+  height: 9px;
+  border-radius: 9999px;
+  flex: 0 0 auto;
+}
+.adaptive-map-tooltip strong {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink, #1a1a1a);
+}
+.adaptive-map-tooltip .sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--color-ink-deep);
+}
+.mapboxgl-popup-content:has(.adaptive-map-tooltip) {
+  padding: 9px 11px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-paper, #f8f6f2) 96%, transparent);
+  box-shadow: 0 6px 20px -10px rgba(26, 26, 26, 0.35);
+  backdrop-filter: blur(4px);
+}
+.mapboxgl-popup:has(.adaptive-map-tooltip) .mapboxgl-popup-tip {
+  border-top-color: var(--color-border);
+}

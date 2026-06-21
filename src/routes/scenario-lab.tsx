@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, type ReactNode } from "react";
 import { NodeMap } from "../components/NodeMap";
 import { NodeSidePanel } from "../components/NodeSidePanel";
+import { AnywhereScenario } from "../components/AnywhereScenario";
 import { Term } from "../components/Term";
 import { fetchMeta, inferenceHealthy, runScenario, type ScenarioParams } from "../lib/inference";
 import { CITY_INFO, labelColor, type NodeProps, type ScenarioResult } from "../data/realData";
@@ -23,7 +24,9 @@ const DEFAULTS: Required<Omit<ScenarioParams, "hub">> = {
   d_food_800: 12,
   d_food_1500: 25,
   near_floor: 0.15,
-  dens_mult: 1.4,
+  dens_mult: 1,
+  grocery_outlets: 6,
+  restaurant_outlets: 6,
   outlet_categories: [],
   cuisine_categories: [],
 };
@@ -33,12 +36,19 @@ function TransferScenario() {
   const navigate = Route.useNavigate();
   const info = CITY_INFO[city];
   const meta = useQuery({ queryKey: ["meta", city], queryFn: () => fetchMeta(city) });
-  const health = useQuery({ queryKey: ["health"], queryFn: inferenceHealthy, staleTime: 10_000 });
+  const health = useQuery({
+    queryKey: ["health"],
+    queryFn: inferenceHealthy,
+    staleTime: 5_000,
+    refetchInterval: 5_000,
+  });
 
   const [hub, setHub] = useState<[number, number] | null>(null);
   const [radius, setRadius] = useState(DEFAULTS.radius_m);
-  const [dFood, setDFood] = useState(DEFAULTS.d_food_800);
+  const [groceryOutlets, setGroceryOutlets] = useState(DEFAULTS.grocery_outlets);
+  const [restaurantOutlets, setRestaurantOutlets] = useState(DEFAULTS.restaurant_outlets);
   const [pickMode, setPickMode] = useState(true);
+  const [anywhere, setAnywhere] = useState(false);
   const [result, setResult] = useState<ScenarioResult | null>(null);
   const [running, setRunning] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -58,12 +68,8 @@ function TransferScenario() {
       const r = await runScenario(city, {
         hub,
         radius_m: radius,
-        d_food_800: dFood,
-        d_food_1500: dFood * 2,
-        near_floor: DEFAULTS.near_floor,
-        dens_mult: DEFAULTS.dens_mult,
-        outlet_categories: [],
-        cuisine_categories: [],
+        grocery_outlets: groceryOutlets,
+        restaurant_outlets: restaurantOutlets,
       });
       setResult(r);
       setPickMode(false);
@@ -141,18 +147,33 @@ function TransferScenario() {
               {CITY_INFO[candidate].name}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => setAnywhere((v) => !v)}
+            aria-pressed={anywhere}
+            className={`rounded-sm px-3 py-2 text-[11px] transition-colors ${
+              anywhere
+                ? "bg-foreground text-background"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            Anywhere
+          </button>
         </div>
       </header>
 
       {serviceDown && (
         <div className="mb-4 rounded-sm border border-[#d59e71] bg-[#fffaf0] px-4 py-3 text-[12px] text-[#7a4a1f]">
           <span className="font-semibold">Inference service offline.</span> The baseline map still
-          loads, but running a scenario needs the Python service. Start it with{" "}
-          <code className="rounded bg-black/5 px-1 font-mono">uvicorn serve:app --port 8000</code>{" "}
-          in <code className="rounded bg-black/5 px-1 font-mono">pipeline/</code>.
+          loads, but running a scenario needs the Python service. From the project folder, use{" "}
+          <code className="rounded bg-black/5 px-1 font-mono">npm run dev</code> to start both the UI
+          and inference service.
         </div>
       )}
 
+      {anywhere ? (
+        <AnywhereScenario />
+      ) : (
       <div className="grid gap-4 lg:grid-cols-[280px_1fr_320px]">
         {/* Controls */}
         <aside className="space-y-4">
@@ -184,8 +205,8 @@ function TransferScenario() {
             <Slider
               label={
                 <>
-                  Intervention radius{" "}
-                  <Term explain="The catchment around the hub that receives new food infrastructure (notebook 04 uses 2 km).">
+                  Intervention service radius{" "}
+                  <Term explain="Limits direct count and nearest-distance changes. The model can still propagate effects to connected neighbours outside this boundary.">
                     (metres)
                   </Term>
                 </>
@@ -198,25 +219,32 @@ function TransferScenario() {
               fmt={(v) => `${(v / 1000).toFixed(2)} km`}
             />
             <Slider
-              label={
-                <>
-                  New food outlets{" "}
-                  <Term explain="Outlets added within 800 m of the hub; the ≤1500 m count rises proportionally. This is the notebook-04 perturbation.">
-                    (≤800 m)
-                  </Term>
-                </>
-              }
-              value={dFood}
+              label="New grocery outlets at hub"
+              value={groceryOutlets}
               min={0}
-              max={30}
+              max={30 - restaurantOutlets}
               step={1}
-              onChange={setDFood}
+              onChange={setGroceryOutlets}
+              fmt={(v) => `+${v}`}
+            />
+            <Slider
+              label="New restaurant outlets at hub"
+              value={restaurantOutlets}
+              min={0}
+              max={30 - groceryOutlets}
+              step={1}
+              onChange={setRestaurantOutlets}
               fmt={(v) => `+${v}`}
             />
 
-            <p className="mt-4 text-[10px] leading-relaxed text-muted-foreground">
-              Notebook 04 changes total food counts, nearest-food distance, and intersection
-              density. It does not claim that outlet affordability or quality changed.
+            <p className="mt-3 font-mono text-[10px] text-foreground">
+              {groceryOutlets + restaurantOutlets}/30 outlets · one hub location
+            </p>
+            <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
+              The solid terracotta map boundary is the selected service area. Inside it, counts and
+              nearest distances use fixed 800 m and 1,500 m catchments. GraphSAGE sees the combined
+              total; grocery share and category diversity remain a separate OSM composition proxy.
+              No price, cuisine, nutrition, or affordability change is assumed.
             </p>
 
             <div className="mt-4 flex gap-2">
@@ -241,7 +269,17 @@ function TransferScenario() {
             <section className="rounded-sm border border-border bg-[color:var(--color-paper)] p-4">
               <p className="smallcaps text-[10px] text-muted-foreground">Scenario readout</p>
               <dl className="mt-2 space-y-2 text-[12px]">
-                <Stat k="Intersections in zone" v={result.affected.toLocaleString()} />
+                <Stat k="Nodes with changed access" v={result.affected.toLocaleString()} />
+                {result.outlet_intervention && (
+                  <>
+                    <Stat k="Groceries placed" v={`+${result.outlet_intervention.grocery_outlets}`} />
+                    <Stat k="Restaurants placed" v={`+${result.outlet_intervention.restaurant_outlets}`} />
+                    <Stat k="Service radius" v={`${(result.outlet_intervention.intervention_radius_m / 1000).toFixed(2)} km`} />
+                    <Stat k="Nodes in service area" v={result.outlet_intervention.nodes_within_intervention.toLocaleString()} />
+                    <Stat k="Nodes within 800 m" v={result.outlet_intervention.nodes_within_800m.toLocaleString()} />
+                    <Stat k="Nodes within 1,500 m" v={result.outlet_intervention.nodes_within_1500m.toLocaleString()} />
+                  </>
+                )}
                 <Stat
                   k="Moved out of food desert"
                   v={result.moved_out_of_desert.toLocaleString()}
@@ -259,6 +297,22 @@ function TransferScenario() {
                   />
                 )}
               </dl>
+              {result.proxy_summary && (
+                <div className="mt-4 border-t border-border pt-3">
+                  <p className="smallcaps text-[9px] text-muted-foreground">
+                    Composition proxy · affected catchment median
+                  </p>
+                  <dl className="mt-2 space-y-1.5 text-[10px]">
+                    <MetricDelta label="Grocery share" metric={result.proxy_summary.grocery_share_pct} suffix="%" />
+                    <MetricDelta label="Category diversity" metric={result.proxy_summary.category_diversity_pct} suffix="%" />
+                    <MetricDelta label="Category coverage" metric={result.proxy_summary.category_coverage_pct} suffix="%" />
+                    <MetricDelta label="Quality proxy" metric={result.proxy_summary.quality_proxy} />
+                  </dl>
+                  <p className="mt-2 text-[9px] leading-relaxed text-muted-foreground">
+                    Supporting OSM proxy only; it does not override the GraphSAGE class.
+                  </p>
+                </div>
+              )}
               {result.transitions.length > 0 && (
                 <>
                   <p className="smallcaps mt-3 text-[9px] text-muted-foreground">
@@ -268,9 +322,9 @@ function TransferScenario() {
                     {result.transitions.slice(0, 6).map((t, i) => (
                       <li key={i} className="flex items-center justify-between gap-2">
                         <span className="flex items-center gap-1.5">
-                          <Sw k={t.from} /> {LABELS[t.from].name.split(" ")[1]}
+                          <Sw k={t.from} /> {shortLabel(t.from)}
                           <span className="text-muted-foreground">→</span>
-                          <Sw k={t.to} /> {LABELS[t.to].name.split(" ")[1]}
+                          <Sw k={t.to} /> {shortLabel(t.to)}
                         </span>
                         <span className="font-mono text-foreground">{t.count}</span>
                       </li>
@@ -323,10 +377,12 @@ function TransferScenario() {
           />
         </aside>
       </div>
+      )}
 
       <div className="mt-6 flex items-center justify-between">
         <Link
           to="/results"
+          search={{ city: city as "bengaluru" | "mysuru", view: "road" }}
           className="smallcaps text-[10px] text-muted-foreground hover:text-foreground"
         >
           ← Back to evidence map
@@ -387,6 +443,30 @@ function Stat({ k, v, accent }: { k: string; v: string; accent?: boolean }) {
       </dd>
     </div>
   );
+}
+
+function MetricDelta({
+  label,
+  metric,
+  suffix = "",
+}: {
+  label: string;
+  metric: { before_median: number | null; after_median: number | null };
+  suffix?: string;
+}) {
+  const value = (number: number | null) => (number == null ? "—" : `${number.toFixed(1)}${suffix}`);
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="font-mono text-foreground">
+        {value(metric.before_median)} → {value(metric.after_median)}
+      </dd>
+    </div>
+  );
+}
+
+function shortLabel(key: LabelKey) {
+  return key === "unknown" ? "Unknown" : LABELS[key].name.replace("Food ", "");
 }
 
 function Sw({ k }: { k: LabelKey }) {

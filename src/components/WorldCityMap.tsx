@@ -28,7 +28,13 @@ function onNearSide(center: mapboxgl.LngLat, lng: number, lat: number): boolean 
   return c[0] * p[0] + c[1] * p[1] + c[2] * p[2] > 0.06;
 }
 
-export function WorldCityMap({ onSelectLive }: { onSelectLive: (city: WorldCity) => void }) {
+export function WorldCityMap({
+  onSelectLive,
+  supportedOnly = false,
+}: {
+  onSelectLive: (city: WorldCity) => void;
+  supportedOnly?: boolean;
+}) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [pins, setPins] = useState<Projected[]>([]);
@@ -50,23 +56,29 @@ export function WorldCityMap({ onSelectLive }: { onSelectLive: (city: WorldCity)
       projection: { name: "globe" },
     });
     mapRef.current = map;
-    map.scrollZoom.disable(); // never hijack page scroll — spin by dragging instead
-    map.doubleClickZoom.disable();
+    map.scrollZoom.enable();
+    map.doubleClickZoom.enable();
+    map.touchZoomRotate.enable();
     map.touchZoomRotate.disableRotation();
+    map.boxZoom.enable();
+    map.keyboard.enable();
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
     map.addControl(new mapboxgl.AttributionControl({ compact: true }));
 
     const project = () => {
       const center = map.getCenter();
       setPins(
-        WORLD_CITIES.map((city) => {
-          const p = map.project(city.coords);
-          return {
-            city,
-            x: p.x,
-            y: p.y,
-            visible: onNearSide(center, city.coords[0], city.coords[1]),
-          };
-        }),
+        WORLD_CITIES.filter((city) => !supportedOnly || city.status !== "coming-soon").map(
+          (city) => {
+            const p = map.project(city.coords);
+            return {
+              city,
+              x: p.x,
+              y: p.y,
+              visible: onNearSide(center, city.coords[0], city.coords[1]),
+            };
+          },
+        ),
       );
     };
 
@@ -90,7 +102,7 @@ export function WorldCityMap({ onSelectLive }: { onSelectLive: (city: WorldCity)
       map.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [supportedOnly]);
 
   const activePin = activeId ? pins.find((p) => p.city.id === activeId) : null;
 

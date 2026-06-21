@@ -116,9 +116,21 @@ export interface CityMeta {
     status: "not_trained" | "promoted" | "evaluation_only";
     promotion_passed: boolean;
     model_version?: string;
+    schema_version?: string;
+    feature_names?: string[];
+    class_keys?: string[];
     checkpoint_sha256?: string;
     target_city_ood_rate?: number;
     target_city_abstention_rate?: number;
+    source_notebooks?: string[];
+    training?: {
+      seed: number;
+      final_epochs: number;
+      labeled_nodes: number;
+      target: string;
+      split: string;
+      trained_at: string;
+    };
     metrics?: {
       spatial_cv_macro_f1: number;
       spatial_cv_accuracy: number;
@@ -128,8 +140,18 @@ export interface CityMeta {
       entropy_threshold: number;
       promotion_checks: Record<string, boolean>;
       per_class: Record<string, { precision: number; recall: number; f1: number; support: number }>;
+      folds?: Array<{
+        fold: number;
+        train_nodes: number;
+        validation_nodes: number;
+        test_nodes: number;
+        best_epoch: number;
+        validation_macro_f1: number;
+        test_macro_f1: number;
+      }>;
     };
   };
+  training_schema?: string[];
 }
 
 export interface ScenarioChange {
@@ -149,6 +171,32 @@ export interface ScenarioChange {
   model_ood_score?: number;
 }
 
+export interface ScenarioMetricDelta {
+  before_median: number | null;
+  after_median: number | null;
+}
+
+export interface ScenarioOutletIntervention {
+  placement_mode: "hub";
+  grocery_outlets: number;
+  restaurant_outlets: number;
+  total_outlets: number;
+  food_800m_increment: number;
+  food_1500m_increment: number;
+  intervention_radius_m: number;
+  nodes_within_intervention: number;
+  nodes_within_800m: number;
+  nodes_within_1500m: number;
+  model_uses_combined_total: true;
+}
+
+export interface ScenarioProxySummary {
+  grocery_share_pct: ScenarioMetricDelta;
+  category_diversity_pct: ScenarioMetricDelta;
+  category_coverage_pct: ScenarioMetricDelta;
+  quality_proxy: ScenarioMetricDelta;
+}
+
 export interface ScenarioResult {
   affected: number;
   moved_out_of_desert: number;
@@ -157,6 +205,8 @@ export interface ScenarioResult {
   transitions: { from: LabelKey; to: LabelKey; count: number }[];
   hub: [number, number];
   radius_m: number;
+  outlet_intervention?: ScenarioOutletIntervention | null;
+  proxy_summary?: ScenarioProxySummary | null;
   intervention_evidence:
     | "none"
     | "model"
